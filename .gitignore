@@ -11,11 +11,16 @@ coverage/
 *.log
 .DS_Store
 Thumbs.db
+*.tsbuildinfo
 
-android/.gradle/
-android/build/
-ios/Pods/
-ios/build/
+# Native builds
+/android/
+/ios/
+mobile/android/
+mobile/ios/
+mobile/.expo/
+backend/dist/
+backend/node_modules/
 
 *.keystore
 *.jks
