@@ -2,6 +2,7 @@ import React from 'react';
 import { Stack } from 'expo-router';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { ThemeProvider, useTheme } from '../src/providers/ThemeProvider';
+import { TaskProvider } from '../src/providers/TaskProvider';
 import { ErrorBoundary } from '../src/components/common/ErrorBoundary';
 
 function RootNavigationLayout() {
@@ -33,7 +34,9 @@ export default function RootLayout() {
     <ErrorBoundary>
       <SafeAreaProvider>
         <ThemeProvider>
-          <RootNavigationLayout />
+          <TaskProvider>
+            <RootNavigationLayout />
+          </TaskProvider>
         </ThemeProvider>
       </SafeAreaProvider>
     </ErrorBoundary>

@@ -52,8 +52,14 @@ To achieve reliable synchronization without the immense overhead of full CRDTs (
 
 #### 1. Server-Assigned Monotonic Revisions (`server_revision`)
 - Every synchronized table in PostgreSQL (`tasks`, `mood_entries`, `user_preferences`) includes an integer column: `server_revision INTEGER DEFAULT 1`.
-- When an update is accepted on the server:
+- **Client Initial State for Unsynced Records & Outbox Coalescing:** Newly created local entities in the SQLite database are assigned `server_revision = 0`, and their initial `INSERT` mutation in `sync_outbox` records `base_server_revision = 0`. Any subsequent local edits performed prior to the first successful server sync are coalesced into the pending `INSERT` mutation payload rather than emitting redundant `UPDATE` mutations with `base_server_revision = 0`. This ensures the outbox contains exactly one clean `INSERT` representing the latest entity state, preventing revision mismatch conflicts or spurious merge logic on the backend. Meanwhile, the client's local `task_history` table continues to record each individual transition event in full.
+- When an insert or update is accepted on the server:
   ```sql
+  -- On initial server acceptance of a client INSERT:
+  INSERT INTO tasks (..., server_revision, server_updated_at)
+  VALUES (..., 1, NOW());
+
+  -- On subsequent accepted updates:
   UPDATE tasks 
   SET 
     title = :title,
@@ -67,16 +73,20 @@ To achieve reliable synchronization without the immense overhead of full CRDTs (
 - The local SQLite database maintains a sequential `sync_outbox` table tracking `client_sequence`, `entity_type`, `entity_id`, `action`, `base_server_revision`, and `payload`.
 - When syncing, mutations are pushed strictly in `client_sequence` order, preserving the user's chronological intent.
 
-#### 3. Field-Aware Merge Resolution
+#### 3. Task History & Audit Retention
+- To ensure full historical tracking (such as repeated completion toggles, postponements with prior and new dates, cancellations, and soft-delete tombstones), a dedicated `task_history` table records every lifecycle transition locally.
+- Task history entries are retained independently of task record soft-deletion tombstones, preserving audit trails for analytics without relying on client-side cascading deletes.
+
+#### 4. Field-Aware Merge Resolution
 - Non-overlapping concurrent edits merge cleanly:
   - If **Device A** updates `due_time` while offline, and **Device B** marks `status = 'completed'`, the server merges both: the task retains the new `due_time` AND the `completed` status.
   - If both devices edit the **same field** concurrently (e.g. both edit `title`), the update associated with the higher server transaction sequence wins.
 
-#### 4. Tombstone Soft Deletion
+#### 5. Tombstone Soft Deletion
 - Deleting a task or mood writes a tombstone (`is_deleted = TRUE`, `deleted_at = NOW()`, `server_revision = server_revision + 1`).
 - Tombstones replicate to other devices during delta pulls (`GET /api/sync/pull?since_revision=X`), prompting the local SQLite database to remove the deleted item from active views and avoid resurrecting zombie records.
 
-#### 5. Idempotent Synchronization
+#### 6. Idempotent Synchronization
 - Every mutation sent carries a unique client-generated UUID `mutation_id`.
 - The server tracks recent mutation IDs in an idempotency table. Retries resulting from network drops are acknowledged without re-applying the mutation.
 

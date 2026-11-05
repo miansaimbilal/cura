@@ -158,5 +158,6 @@ const styles = StyleSheet.create({
   body: {
     paddingHorizontal: 20,
     paddingTop: 8,
+    flexShrink: 1,
   },
 });

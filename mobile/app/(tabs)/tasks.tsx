@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { ScreenContainer } from '../../src/components/layout/ScreenContainer';
 import { Header } from '../../src/components/layout/Header';
@@ -7,227 +7,261 @@ import { Text } from '../../src/components/ui/Text';
 import { Card } from '../../src/components/ui/Card';
 import { Button } from '../../src/components/ui/Button';
 import { EmptyState } from '../../src/components/ui/EmptyState';
+import { LoadingIndicator } from '../../src/components/ui/LoadingIndicator';
 import { useTheme } from '../../src/hooks/useTheme';
-
-type FilterType = 'all' | 'today' | 'upcoming' | 'completed';
+import { useTasks } from '../../src/hooks/useTasks';
+import { Task, CreateTaskInput, UpdateTaskInput } from '../../src/types/task';
+import {
+  TaskCard,
+  TaskFormModal,
+  TaskDetailModal,
+  TaskFilterTabs,
+} from '../../src/components/tasks';
 
 export default function TasksScreen() {
   const { theme } = useTheme();
-  const [selectedFilter, setSelectedFilter] = useState<FilterType>('all');
-  const [showEmptyPreview, setShowEmptyPreview] = useState(false);
+  const {
+    tasks,
+    filteredTasks,
+    currentFilter,
+    setFilter,
+    todaySummary,
+    isLoading,
+    error,
+    createTask,
+    updateTask,
+    toggleComplete,
+    postponeTask,
+    cancelTask,
+    deleteTask,
+    refreshTasks,
+  } = useTasks();
 
-  const filterChips: { id: FilterType; label: string }[] = [
-    { id: 'all', label: 'All (Demo)' },
-    { id: 'today', label: 'Today (Demo)' },
-    { id: 'upcoming', label: 'Upcoming (Demo)' },
-    { id: 'completed', label: 'Completed (Demo)' },
-  ];
+  const [isFormVisible, setIsFormVisible] = useState(false);
+  const [editingTask, setEditingTask] = useState<Task | null>(null);
+  const [selectedTask, setSelectedTask] = useState<Task | null>(null);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+
+  const handleRefresh = async () => {
+    setIsRefreshing(true);
+    await refreshTasks();
+    setIsRefreshing(false);
+  };
+
+  const handleOpenCreate = () => {
+    setEditingTask(null);
+    setIsFormVisible(true);
+  };
+
+  const handleOpenEdit = (task: Task) => {
+    setEditingTask(task);
+    setIsFormVisible(true);
+  };
+
+  const handleSaveTask = async (data: CreateTaskInput | UpdateTaskInput) => {
+    if (editingTask) {
+      await updateTask(editingTask.id, data);
+    } else {
+      await createTask(data as CreateTaskInput);
+    }
+  };
+
+  // Compute filter badge counts
+  const filterCounts = {
+    today: todaySummary.total,
+    upcoming: tasks.filter((t) => t.dueDate && t.status === 'pending').length,
+    all: tasks.length,
+    completed: tasks.filter((t) => t.status === 'completed').length,
+  };
+
+  // Render contextual empty states based on filter
+  const renderEmptyState = () => {
+    switch (currentFilter) {
+      case 'today':
+        return (
+          <EmptyState
+            title="All clear for today"
+            description="You have no pending tasks scheduled for today. Take time to relax or add something you'd like to do."
+            icon={<Ionicons name="sunny-outline" size={36} color={theme.colors.warning} />}
+            actionTitle="Add a Task"
+            onAction={handleOpenCreate}
+          />
+        );
+      case 'upcoming':
+        return (
+          <EmptyState
+            title="No upcoming tasks"
+            description="You don't have any scheduled tasks for the coming days. You're completely caught up!"
+            icon={<Ionicons name="calendar-outline" size={36} color={theme.colors.accent} />}
+            actionTitle="Schedule a Task"
+            onAction={handleOpenCreate}
+          />
+        );
+      case 'completed':
+        return (
+          <EmptyState
+            title="No completed tasks yet"
+            description="As you check off tasks, they will appear here in your accomplishment history."
+            icon={<Ionicons name="checkmark-done-circle-outline" size={36} color={theme.colors.success} />}
+          />
+        );
+      case 'all':
+      default:
+        return (
+          <EmptyState
+            title="No tasks yet"
+            description="Cura keeps your tasks safe locally on your device. Create your first task to get started."
+            icon={<Ionicons name="checkbox-outline" size={36} color={theme.colors.accent} />}
+            actionTitle="Create First Task"
+            onAction={handleOpenCreate}
+          />
+        );
+    }
+  };
+
+  if (isLoading && tasks.length === 0) {
+    return (
+      <ScreenContainer
+        header={<Header title="Tasks" subtitle="Loading your tasks..." />}
+      >
+        <View style={styles.loadingContainer}>
+          <LoadingIndicator label="Initializing local SQLite database..." />
+        </View>
+      </ScreenContainer>
+    );
+  }
+
+  if (error && tasks.length === 0) {
+    return (
+      <ScreenContainer
+        header={<Header title="Tasks" subtitle="Error loading tasks" />}
+      >
+        <Card variant="surface" style={styles.errorCard}>
+          <Ionicons name="alert-circle-outline" size={32} color={theme.colors.error} />
+          <Text variant="subheading" color={theme.colors.error} style={styles.errorTitle}>
+            Database Error
+          </Text>
+          <Text variant="bodySmall" color={theme.colors.textSecondary} align="center">
+            {error}
+          </Text>
+          <Button
+            title="Retry"
+            variant="primary"
+            onPress={handleRefresh}
+            style={styles.retryButton}
+          />
+        </Card>
+      </ScreenContainer>
+    );
+  }
+
+  const headerSubtitle =
+    todaySummary.total > 0
+      ? `${todaySummary.completed} of ${todaySummary.total} completed today`
+      : 'Local-first task companion';
 
   return (
     <ScreenContainer
+      refreshing={isRefreshing}
+      onRefresh={handleRefresh}
       header={
         <Header
           title="Tasks"
-          subtitle="Design-system preview (Phase 3 feature)"
+          subtitle={headerSubtitle}
           rightElement={
             <Button
-              title={showEmptyPreview ? 'Show Cards' : 'Show Empty'}
+              title="Add Task"
               size="sm"
-              variant="outline"
-              onPress={() => setShowEmptyPreview(!showEmptyPreview)}
+              variant="primary"
+              leftIcon={<Ionicons name="add" size={16} color={theme.colors.accentForeground} />}
+              onPress={handleOpenCreate}
             />
           }
         />
       }
     >
-      {/* Visual Filter Chips Demonstration */}
-      <View style={styles.filterRow}>
-        {filterChips.map((f) => {
-          const isActive = selectedFilter === f.id;
-          return (
-            <TouchableOpacity
-              key={f.id}
-              activeOpacity={0.7}
-              onPress={() => setSelectedFilter(f.id)}
-              style={[
-                styles.filterChip,
-                {
-                  backgroundColor: isActive ? theme.colors.accent : theme.colors.surface,
-                  borderColor: isActive ? theme.colors.accent : theme.colors.borderSubtle,
-                },
-              ]}
-            >
-              <Text
-                variant="caption"
-                color={isActive ? theme.colors.accentForeground : theme.colors.textSecondary}
-                weight={isActive ? '600' : '500'}
-              >
-                {f.label}
-              </Text>
-            </TouchableOpacity>
-          );
-        })}
-      </View>
+      {/* Dynamic Filter Tabs with Task Counts */}
+      <TaskFilterTabs
+        currentFilter={currentFilter}
+        onSelectFilter={setFilter}
+        counts={filterCounts}
+      />
 
-      {/* Empty State Component Demonstration or Sample Cards */}
-      {showEmptyPreview ? (
-        <Card variant="surface" style={{ marginTop: 12 }}>
-          <EmptyState
-            title="Empty State Component Demo"
-            description="This component demonstrates the design-system empty state layout. Task creation and persistence will be built in Phase 3."
-            icon={<Ionicons name="checkbox-outline" size={32} color={theme.colors.accent} />}
-            actionTitle="Return to Card Previews"
-            onAction={() => setShowEmptyPreview(false)}
-          />
+      {/* Task List or Empty State */}
+      {filteredTasks.length === 0 ? (
+        <Card variant="surface" style={styles.emptyContainer}>
+          {renderEmptyState()}
         </Card>
       ) : (
         <View style={styles.taskList}>
-          {/* Sample Card 1: Timed Task Item */}
-          <Card variant="surface" style={styles.taskCard}>
-            <View style={styles.taskHeader}>
-              <View style={[styles.priorityTag, { backgroundColor: theme.colors.accentSubtle }]}>
-                <Ionicons name="time-outline" size={12} color={theme.colors.accent} />
-                <Text variant="caption" color={theme.colors.accent} style={styles.priorityText}>
-                  Sample Timed Task • 10:00 AM
-                </Text>
-              </View>
-              <Ionicons name="ellipsis-horizontal" size={16} color={theme.colors.textMuted} />
-            </View>
-            <View style={styles.taskContentRow}>
-              <View style={[styles.checkbox, { borderColor: theme.colors.borderStrong }]}>
-                <Ionicons name="ellipse" size={8} color="transparent" />
-              </View>
-              <View style={styles.taskTitleCol}>
-                <Text variant="bodyLarge" weight="600">
-                  Sample: Morning reflection check-in
-                </Text>
-                <Text variant="bodySmall" color={theme.colors.textSecondary} style={styles.taskDesc}>
-                  Visual demonstration of a timed task item with subtitle
-                </Text>
-              </View>
-            </View>
-          </Card>
-
-          {/* Sample Card 2: Untimed Task Item */}
-          <Card variant="surface" style={styles.taskCard}>
-            <View style={styles.taskHeader}>
-              <View style={[styles.priorityTag, { backgroundColor: theme.colors.warningSubtle }]}>
-                <Ionicons name="sunny-outline" size={12} color={theme.colors.warning} />
-                <Text variant="caption" color={theme.colors.warning} style={styles.priorityText}>
-                  Sample Untimed Task • End of Day
-                </Text>
-              </View>
-            </View>
-            <View style={styles.taskContentRow}>
-              <View style={[styles.checkbox, { borderColor: theme.colors.borderStrong }]} />
-              <View style={styles.taskTitleCol}>
-                <Text variant="bodyLarge" weight="600">
-                  Sample: Read for 20 minutes
-                </Text>
-                <Text variant="bodySmall" color={theme.colors.textSecondary} style={styles.taskDesc}>
-                  Visual demonstration of an untimed task item
-                </Text>
-              </View>
-            </View>
-          </Card>
-
-          {/* Sample Card 3: Completed Task Item */}
-          <Card variant="surface" style={[styles.taskCard, { opacity: 0.75 }]}>
-            <View style={styles.taskHeader}>
-              <View style={[styles.priorityTag, { backgroundColor: theme.colors.successSubtle }]}>
-                <Ionicons name="checkmark-done" size={12} color={theme.colors.success} />
-                <Text variant="caption" color={theme.colors.success} style={styles.priorityText}>
-                  Sample Completed Task
-                </Text>
-              </View>
-            </View>
-            <View style={styles.taskContentRow}>
-              <View style={[styles.checkbox, { backgroundColor: theme.colors.success, borderColor: theme.colors.success }]}>
-                <Ionicons name="checkmark" size={12} color="#FFFFFF" />
-              </View>
-              <View style={styles.taskTitleCol}>
-                <Text
-                  variant="bodyLarge"
-                  color={theme.colors.textMuted}
-                  style={{ textDecorationLine: 'line-through' }}
-                >
-                  Sample: Drink a glass of water
-                </Text>
-              </View>
-            </View>
-          </Card>
+          {filteredTasks.map((task) => (
+            <TaskCard
+              key={task.id}
+              task={task}
+              onToggleComplete={toggleComplete}
+              onPress={(t) => setSelectedTask(t)}
+              showDate={currentFilter === 'all' || currentFilter === 'upcoming'}
+            />
+          ))}
         </View>
       )}
 
-      {/* Scope Disclaimer */}
-      <View style={[styles.noteBox, { backgroundColor: theme.colors.surfaceSubtle }]}>
-        <Text variant="caption" color={theme.colors.textMuted} align="center">
-          Phase 1 layout preview. Actual task creation, editing, persistent storage, and reminder notifications belong to Phase 3.
-        </Text>
-      </View>
+      {/* Task Creation & Editing Modal Sheet */}
+      <TaskFormModal
+        visible={isFormVisible}
+        onClose={() => {
+          setIsFormVisible(false);
+          setEditingTask(null);
+        }}
+        onSave={handleSaveTask}
+        initialTask={editingTask}
+      />
+
+      {/* Task Detail & Actions Modal Sheet */}
+      <TaskDetailModal
+        task={selectedTask}
+        visible={Boolean(selectedTask)}
+        onClose={() => setSelectedTask(null)}
+        onEdit={handleOpenEdit}
+        onToggleComplete={async (id) => {
+          await toggleComplete(id);
+        }}
+        onPostpone={async (id, newDate, newTime) => {
+          await postponeTask(id, newDate, newTime);
+        }}
+        onCancel={async (id) => {
+          await cancelTask(id);
+        }}
+        onDelete={async (id) => {
+          await deleteTask(id);
+        }}
+      />
     </ScreenContainer>
   );
 }
 
 const styles = StyleSheet.create({
-  filterRow: {
-    flexDirection: 'row',
-    marginBottom: 16,
-    gap: 8,
-  },
-  filterChip: {
-    paddingHorizontal: 12,
-    paddingVertical: 7,
-    borderRadius: 16,
-    borderWidth: 1,
-  },
-  taskList: {
-    gap: 12,
-  },
-  taskCard: {
-    marginBottom: 0,
-  },
-  taskHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: 8,
-  },
-  priorityTag: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: 8,
-    gap: 4,
-  },
-  priorityText: {
-    fontSize: 11,
-    fontWeight: '600',
-  },
-  taskContentRow: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-  },
-  checkbox: {
-    width: 20,
-    height: 20,
-    borderRadius: 6,
-    borderWidth: 1.5,
+  loadingContainer: {
+    paddingVertical: 60,
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: 2,
-    marginRight: 12,
   },
-  taskTitleCol: {
-    flex: 1,
+  errorCard: {
+    padding: 24,
+    alignItems: 'center',
+    marginTop: 20,
   },
-  taskDesc: {
-    marginTop: 2,
+  errorTitle: {
+    marginTop: 8,
+    marginBottom: 4,
   },
-  noteBox: {
-    marginTop: 24,
-    padding: 12,
-    borderRadius: 12,
+  retryButton: {
+    marginTop: 16,
+  },
+  emptyContainer: {
+    paddingVertical: 12,
+  },
+  taskList: {
+    paddingBottom: 24,
   },
 });

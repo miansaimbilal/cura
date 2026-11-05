@@ -1,3 +1,5 @@
+export * from './task';
+
 export type Priority = 'low' | 'medium' | 'high';
 
 export type TaskStatus = 'pending' | 'completed' | 'postponed' | 'cancelled';

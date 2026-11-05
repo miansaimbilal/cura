@@ -10,20 +10,43 @@ import { Avatar } from '../../src/components/ui/Avatar';
 import { SectionHeader } from '../../src/components/ui/SectionHeader';
 import { ModalSheet } from '../../src/components/ui/ModalSheet';
 import { useTheme } from '../../src/hooks/useTheme';
+import { useTasks } from '../../src/hooks/useTasks';
 import { MOODS } from '../../src/constants';
+import { TaskFormModal } from '../../src/components/tasks/TaskFormModal';
+import { formatDisplayTime } from '../../src/utils/date';
+import { CreateTaskInput } from '../../src/types/task';
 
 export default function HomeScreen() {
   const { theme, themeMode, setThemeMode, isDark } = useTheme();
   const router = useRouter();
+  const { filteredTasks, todaySummary, toggleComplete, createTask } = useTasks();
+
   const [selectedMoodPreview, setSelectedMoodPreview] = useState<string>('calm');
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isTaskFormOpen, setIsTaskFormOpen] = useState(false);
 
   const toggleTheme = () => {
     const nextMode = themeMode === 'dark' ? 'light' : themeMode === 'light' ? 'system' : 'dark';
     setThemeMode(nextMode);
   };
 
-  const sampleDate = 'Wednesday, Nov 4';
+  const currentDateFormatted = new Date().toLocaleDateString(undefined, {
+    weekday: 'long',
+    month: 'short',
+    day: 'numeric',
+  });
+
+  const completionPercentage =
+    todaySummary.total > 0
+      ? Math.round((todaySummary.completed / todaySummary.total) * 100)
+      : 0;
+
+  // Show up to 3 tasks scheduled for today
+  const todayTasksPreview = filteredTasks.slice(0, 3);
+
+  const handleCreateTask = async (data: any) => {
+    await createTask(data as CreateTaskInput);
+  };
 
   return (
     <ScreenContainer>
@@ -33,7 +56,7 @@ export default function HomeScreen() {
           <Avatar name="Guest User" size="md" />
           <View style={styles.nameColumn}>
             <Text variant="caption" color={theme.colors.textMuted}>
-              {sampleDate} (Sample Date)
+              {currentDateFormatted}
             </Text>
             <Text variant="heading2">Good day, Friend</Text>
           </View>
@@ -74,7 +97,7 @@ export default function HomeScreen() {
               Cura Reflection Preview
             </Text>
             <Text variant="caption" color={theme.colors.textMuted}>
-              Static Design Sample (Phase 6 Feature)
+              Design Preview (Phase 6 Feature)
             </Text>
           </View>
         </View>
@@ -130,56 +153,104 @@ export default function HomeScreen() {
         })}
       </View>
 
-      {/* Today's Tasks Summary Card (Static Sample Data) */}
+      {/* Today's Tasks Summary Card (Connected to Local SQLite Data) */}
       <SectionHeader
-        title="Today's Focus (Sample Data)"
-        actionText="View tasks"
+        title="Today's Focus"
+        actionText="View all"
         onActionPress={() => router.push('/(tabs)/tasks')}
       />
       <Card variant="surface" style={styles.taskCard}>
         <View style={styles.taskCardRow}>
-          <View style={[styles.progressRingPlaceholder, { borderColor: theme.colors.accent }]}>
-            <Text variant="subheading" color={theme.colors.accent} weight="700">
-              60%
+          <View
+            style={[
+              styles.progressRingPlaceholder,
+              {
+                borderColor: todaySummary.total > 0 && completionPercentage === 100
+                  ? theme.colors.success
+                  : theme.colors.accent,
+              },
+            ]}
+          >
+            <Text
+              variant="subheading"
+              color={
+                todaySummary.total > 0 && completionPercentage === 100
+                  ? theme.colors.success
+                  : theme.colors.accent
+              }
+              weight="700"
+            >
+              {todaySummary.total > 0 ? `${completionPercentage}%` : '0%'}
             </Text>
           </View>
           <View style={styles.taskStatsColumn}>
-            <Text variant="heading3">Sample Progress (3 of 5)</Text>
+            <Text variant="heading3">
+              {todaySummary.total > 0
+                ? `${todaySummary.completed} of ${todaySummary.total} completed`
+                : 'No tasks scheduled'}
+            </Text>
             <Text variant="bodySmall" color={theme.colors.textSecondary}>
-              Static layout preview for Phase 1
+              {todaySummary.overdue > 0
+                ? `${todaySummary.overdue} overdue task${todaySummary.overdue > 1 ? 's' : ''}`
+                : todaySummary.total > 0
+                ? `${todaySummary.remaining} task${todaySummary.remaining === 1 ? '' : 's'} remaining`
+                : 'Enjoy your day or add a new task'}
             </Text>
           </View>
         </View>
 
-        {/* Task Item Sample Previews */}
-        <View style={[styles.previewTaskItem, { borderTopColor: theme.colors.borderSubtle }]}>
-          <Ionicons name="checkmark-circle" size={20} color={theme.colors.success} />
-          <Text variant="body" style={styles.previewTaskText}>
-            Sample completed task item
-          </Text>
-          <Text variant="caption" color={theme.colors.textMuted}>
-            Sample
-          </Text>
-        </View>
-
-        <View style={[styles.previewTaskItem, { borderTopColor: theme.colors.borderSubtle }]}>
-          <Ionicons name="ellipse-outline" size={20} color={theme.colors.textMuted} />
-          <Text variant="body" style={styles.previewTaskText}>
-            Sample pending timed task item
-          </Text>
-          <Text variant="caption" color={theme.colors.accent}>
-            2:00 PM
-          </Text>
-        </View>
+        {/* Task Items Preview */}
+        {todayTasksPreview.length > 0 ? (
+          todayTasksPreview.map((task) => {
+            const isCompleted = task.status === 'completed';
+            return (
+              <TouchableOpacity
+                key={task.id}
+                activeOpacity={0.7}
+                onPress={() => toggleComplete(task.id)}
+                style={[styles.previewTaskItem, { borderTopColor: theme.colors.borderSubtle }]}
+              >
+                <Ionicons
+                  name={isCompleted ? 'checkmark-circle' : 'ellipse-outline'}
+                  size={20}
+                  color={isCompleted ? theme.colors.success : theme.colors.textMuted}
+                />
+                <Text
+                  variant="body"
+                  color={isCompleted ? theme.colors.textMuted : theme.colors.textPrimary}
+                  style={[
+                    styles.previewTaskText,
+                    isCompleted && { textDecorationLine: 'line-through' },
+                  ]}
+                  numberOfLines={1}
+                >
+                  {task.title}
+                </Text>
+                {task.isTimed && task.dueTime ? (
+                  <Text variant="caption" color={theme.colors.accent}>
+                    {formatDisplayTime(task.dueTime)}
+                  </Text>
+                ) : (
+                  <Text variant="caption" color={theme.colors.textMuted}>
+                    End of Day
+                  </Text>
+                )}
+              </TouchableOpacity>
+            );
+          })
+        ) : (
+          <View style={[styles.emptyPreviewRow, { borderTopColor: theme.colors.borderSubtle }]}>
+            <Button
+              title="Add a Task for Today"
+              size="sm"
+              variant="outline"
+              leftIcon={<Ionicons name="add" size={16} color={theme.colors.accent} />}
+              onPress={() => setIsTaskFormOpen(true)}
+              style={styles.addTodayBtn}
+            />
+          </View>
+        )}
       </Card>
-
-      {/* Scope Disclaimer Banner */}
-      <View style={[styles.foundationNotice, { backgroundColor: theme.colors.surfaceSubtle, borderColor: theme.colors.borderSubtle }]}>
-        <Ionicons name="information-circle-outline" size={18} color={theme.colors.info} />
-        <Text variant="caption" color={theme.colors.textSecondary} style={styles.noticeText}>
-          Phase 1 Foundation: Visual demonstration only. Actual task management, mood tracking, and AI features belong to future phases.
-        </Text>
-      </View>
 
       {/* Component Foundation Demo Modal */}
       <ModalSheet
@@ -189,7 +260,7 @@ export default function HomeScreen() {
         subtitle="Reusable Bottom Sheet Component"
       >
         <Text variant="body" color={theme.colors.textSecondary} style={{ marginBottom: 16 }}>
-          This bottom sheet demonstrates the reusable `ModalSheet` component with smooth animations and theme-aware styling. No persistent actions are executed.
+          This bottom sheet demonstrates the reusable `ModalSheet` component with smooth animations and theme-aware styling.
         </Text>
         <Button
           title="Close Preview"
@@ -197,6 +268,13 @@ export default function HomeScreen() {
           onPress={() => setIsModalOpen(false)}
         />
       </ModalSheet>
+
+      {/* Quick Task Creation Modal from Home */}
+      <TaskFormModal
+        visible={isTaskFormOpen}
+        onClose={() => setIsTaskFormOpen(false)}
+        onSave={handleCreateTask}
+      />
     </ScreenContainer>
   );
 }
@@ -303,16 +381,12 @@ const styles = StyleSheet.create({
     flex: 1,
     marginLeft: 10,
   },
-  foundationNotice: {
-    flexDirection: 'row',
+  emptyPreviewRow: {
+    paddingTop: 12,
+    borderTopWidth: 1,
     alignItems: 'center',
-    padding: 12,
-    borderRadius: 12,
-    borderWidth: 1,
-    marginBottom: 24,
   },
-  noticeText: {
-    flex: 1,
-    marginLeft: 8,
+  addTodayBtn: {
+    width: '100%',
   },
 });
