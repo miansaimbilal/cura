@@ -160,3 +160,78 @@ In strict accordance with Phase 3 scope:
   - Local SQLite mood repository (`mood_entries`).
   - Mood logging UI and non-judgmental spectrum tokens.
   - Analytics calculations and custom SVG charts.
+
+
+---
+
+# Phase 4 — Mood Tracking & Analytics (Completed & Verified)
+
+**Completed on:** 2026-11-05  
+**Baseline Verified:** React Native 0.88.1, Expo SDK ~58.0.23, TypeScript 6.0.3, expo-sqlite ~58.0.15, react-native-svg 15.16.0.
+
+---
+
+## 1. Phase 4 Scope & Deliverables Completed
+
+1. **Native SQLite Migration `0003_mood_entries` (`mobile/src/db/migrations/index.ts`):**
+   - Provisions local `mood_entries` table matching backend PostgreSQL contract:
+     - `id` (UUID text primary key), `user_id` (default 'guest'), `mood_type` (9 approved non-judgmental categories), `note` (optional reflection up to 1000 chars), `tags` (JSON array of sanitized context tags), `logged_at` (ISO 8601 local timestamp), `server_revision` (defaults strictly to 0 for unsynced drafts), `server_updated_at` (strictly NULL until authoritative server confirmation), `is_deleted` (tombstone flag), `deleted_at`, `created_at`, `updated_at`.
+   - Performance Indexes: `idx_mood_entries_user_deleted`, `idx_mood_entries_logged_at`, `idx_mood_entries_mood_type`, `idx_mood_entries_updated_at`.
+   - Bumps `PRAGMA user_version = 3`.
+
+2. **Offline-First Mood Repository (`mobile/src/db/moodRepository.ts`):**
+   - `createMoodEntry`: Validates mood type and note length, sanitizes tags, inserts with `server_revision = 0` and `server_updated_at = null`, appends `INSERT` mutation to `sync_outbox` with `base_server_revision = 0`.
+   - `updateMoodEntry`: Implements outbox mutation coalescing prior to first sync (updating the pending `INSERT` payload) and generates monotonic `UPDATE` mutations for synced records.
+   - `deleteMoodEntry`: Deletes unsynced entries cleanly from `sync_outbox` while soft-deleting locally (avoiding redundant server DELETE mutations), and generates `DELETE` tombstones for synced records.
+   - `getMoodEntriesByDateRange`: Inclusive start and exclusive end ISO queries for date filtering.
+   - `getMoodDistribution`: Aggregates category counts, percentages, and identifies the most frequent mood without mock data.
+
+3. **Timezone & Calendar Calculation Engine (`mobile/src/utils/date.ts` & `analytics.ts`):**
+   - `toLocalDateString`: Converts ISO timestamps into local `YYYY-MM-DD` using the device's local calendar, eliminating UTC midnight skew.
+   - Local Calendar Boundaries: Day (`00:00:00.000` to `23:59:59.999`), Calendar Week (Monday to Sunday), and Calendar Month (1st to last of month).
+   - Cohort Task Completion Rate: Evaluates scheduled commitment fulfillment based on latest `due_date` (or `created_at` for untimed tasks), excluding cancelled and soft-deleted tasks. Returns null when total is 0.
+   - Audit-Backed Task Activity Throughput: Calculates daily completions using `task_history` transitions (`action IN ('completed', 'uncompleted')`), evaluated in insertion order using SQLite `rowid` tie-breaking. Preserves historical accomplishments across subsequent uncompletions or deletions.
+
+4. **Non-Judgmental Categorical Visualizations & Custom SVG Charts:**
+   - `DayMoodTimeline`: 24-hour chronological emotional timeline showing authentic badges, icons, 12h AM/PM times, notes, and tags.
+   - `WeekMoodStrip`: 7-day Monday–Sunday calendar strip displaying discrete logged mood glyphs per weekday with clean dashes for unrecorded days.
+   - `MonthMoodMatrix`: Full month calendar matrix displaying colored mood dots per day with tap-to-inspect reflections.
+   - `MoodDistributionDonut`: Custom responsive SVG donut chart with theme-aware mood palette tokens, counts, percentages, and centered log count.
+   - `TaskProgressRing`: Custom responsive SVG circular ring displaying cohort completion rate.
+   - `TaskActivityBarChart`: Custom responsive SVG bar chart visualizing daily completion throughput from `task_history`.
+
+5. **Reactive State Management & Screens:**
+   - `MoodProvider` & `useMood`: Mounted in root `_layout.tsx`, provides instant reactivity across all screens without polling.
+   - `MoodScreen` (`mobile/app/(tabs)/mood.tsx`): 9-mood interactive grid, bottom-sheet logging modal (`MoodLogModal`), and chronological history with edit/delete modals.
+   - `AnalyticsScreen` (`mobile/app/(tabs)/analytics.tsx`): Dedicated dashboard with Day/Week/Month selector, summary metric cards, and all 4 SVG charts with complete empty states.
+   - `HomeScreen` (`mobile/app/(tabs)/home.tsx`): Integrated live latest mood badge, one-tap mood log modal, and live SVG task progress ring.
+   - 5-tab Navigation (`mobile/app/(tabs)/_layout.tsx`): Added Analytics tab (`stats-chart`).
+
+---
+
+## 2. Test Verification & Diagnostics Record
+
+| Diagnostic / Suite | Command | Status | Result Summary |
+| :--- | :--- | :---: | :--- |
+| **Mobile TypeScript Strict** | `npm run typecheck` (`tsc --noEmit`) | **PASSED** | Exit code 0: 0 errors across all screens, repositories, and components. |
+| **Mobile ESLint Quality** | `npm run lint` (`eslint .`) | **PASSED** | Exit code 0: 0 errors, 0 warnings. |
+| **Mobile Vitest Suite** | `npm test` (`vitest run`) | **PASSED** | **59/59 tests passed** across 5 test suites (100% pass rate). |
+| **Backend Vitest Suite** | `npm test` (`vitest run`) | **PASSED** | **30/30 tests passed** (including in-memory PostgreSQL tests). |
+| **Manual Android Verification** | Interactive Testing on `emulator-5554` | **PASSED** | All user manual tests verified: Home overview, 9-mood logging, notes & tags, timeline, edit/delete, Day/Week/Month analytics, SVG charts, and SQLite persistence. |
+
+---
+
+## 3. Known Limitations & Historical Baseline
+
+1. **Task History Baseline:** Complete transition-based activity tracking is authoritative from Migration `0002_task_history` forward. Earlier pre-migration states only reflect reconstructed creation and completion timestamps.
+2. **Rescheduled Task Cohorts:** In accordance with Safeguard 3, postponing a task updates its scheduled cohort date, which can update historical cohort completion percentages for past periods. Task Activity throughput remains historically immutable.
+3. **Timezone Interpretation:** Historical timestamps are interpreted using the device's current local timezone.
+
+---
+
+## 4. Next Phase Roadmap
+
+- **Phase 5 — AI Companion & Provider Integration:**
+  - AI provider abstraction (`IAIProvider`) for Gemini, Groq, and OpenRouter.
+  - Failover engine and local context builder (scoped to tasks and 3-day mood tags).
+  - Conversational chat interface and reflection check-ins.

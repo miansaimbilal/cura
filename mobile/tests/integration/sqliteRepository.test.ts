@@ -27,9 +27,9 @@ describe('Real SQLite Database & Task Repository (Integration Tests)', () => {
   });
 
   describe('1. Schema Migrations & Database Initialization', () => {
-    it('sets PRAGMA user_version = 2 upon completing migrations 0001 and 0002', async () => {
+    it('sets PRAGMA user_version matching migrations length upon completing all migrations', async () => {
       const versionResult = await db.getFirstAsync<{ user_version: number }>('PRAGMA user_version;');
-      expect(versionResult?.user_version).toBe(2);
+      expect(versionResult?.user_version).toBe(migrations.length);
     });
 
     it('creates tasks, sync_outbox, and task_history tables with required indexes in SQLite', async () => {
@@ -58,7 +58,7 @@ describe('Real SQLite Database & Task Repository (Integration Tests)', () => {
     it('is idempotent: re-running migrations does not alter version or duplicate tables', async () => {
       await runMigrations(db);
       const versionResult = await db.getFirstAsync<{ user_version: number }>('PRAGMA user_version;');
-      expect(versionResult?.user_version).toBe(2);
+      expect(versionResult?.user_version).toBe(migrations.length);
     });
 
     it('backfills created and completed history entries for tasks existing before migration 0002', async () => {
@@ -86,10 +86,10 @@ describe('Real SQLite Database & Task Repository (Integration Tests)', () => {
         now
       );
 
-      // 3. Now run runMigrations(v1Db) to apply migration 0002
+      // 3. Now run runMigrations(v1Db) to apply migrations 0002 and 0003
       await runMigrations(v1Db);
       const versionResult = await v1Db.getFirstAsync<{ user_version: number }>('PRAGMA user_version;');
-      expect(versionResult?.user_version).toBe(2);
+      expect(versionResult?.user_version).toBe(migrations.length);
 
       // 4. Verify backfilled history entries for pre-task-1
       const history1 = await getTaskHistory(v1Db, 'pre-task-1');

@@ -2,12 +2,17 @@ import { describe, it, expect } from 'vitest';
 import {
   getLocalDateString,
   getLocalTimeString,
+  toLocalDateString,
+  toLocalTimeString,
   getTomorrowDateString,
   isValidDateString,
   isValidTimeString,
   formatDisplayDate,
   formatDisplayTime,
   isTaskOverdue,
+  getLocalDayRange,
+  getCalendarWeekRange,
+  getCalendarMonthRange,
 } from '../../src/utils/date';
 
 describe('Date & Time Utilities (Unit Tests)', () => {
@@ -85,5 +90,39 @@ describe('Date & Time Utilities (Unit Tests)', () => {
 
     // Task due tomorrow
     expect(isTaskOverdue('2026-11-06', '09:00', ref)).toBe(false);
+  });
+
+  it('converts ISO timestamp to local date string without UTC day shift', () => {
+    // A timestamp at 11:30 PM local on Dec 31
+    const endOfYear = new Date(2026, 11, 31, 23, 30, 0);
+    const isoString = endOfYear.toISOString();
+    expect(toLocalDateString(isoString)).toBe('2026-12-31');
+    expect(toLocalTimeString(isoString)).toBe('23:30');
+  });
+
+  it('handles year transitions correctly for calendar ranges', () => {
+    const newYearEve = new Date(2026, 11, 31, 10, 0, 0);
+    const dayRange = getLocalDayRange(newYearEve);
+    expect(dayRange.startDate).toBe('2026-12-31');
+    expect(dayRange.endDate).toBe('2026-12-31');
+    expect(new Date(dayRange.startISO).getFullYear()).toBe(2026);
+    expect(new Date(dayRange.endISO).getFullYear()).toBe(2027);
+  });
+
+  it('computes Monday-to-Sunday calendar week range correctly', () => {
+    // Thursday Nov 5, 2026
+    const thursday = new Date(2026, 10, 5, 14, 0, 0);
+    const weekRange = getCalendarWeekRange(thursday);
+    expect(weekRange.startDate).toBe('2026-11-02'); // Monday Nov 2
+    expect(weekRange.endDate).toBe('2026-11-08'); // Sunday Nov 8
+  });
+
+  it('computes 1st-to-last calendar month range correctly', () => {
+    // Nov 5, 2026
+    const midMonth = new Date(2026, 10, 5, 12, 0, 0);
+    const monthRange = getCalendarMonthRange(midMonth);
+    expect(monthRange.startDate).toBe('2026-11-01');
+    expect(monthRange.endDate).toBe('2026-11-30');
+    expect(monthRange.label).toContain('November 2026');
   });
 });

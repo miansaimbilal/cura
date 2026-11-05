@@ -129,6 +129,36 @@ export const migrations: Migration[] = [
       }
     },
   },
+  {
+    version: 3,
+    name: '0003_mood_entries',
+    up: async (db: IDatabase) => {
+      // 1. Create local mood_entries table matching backend PostgreSQL schema contract
+      // server_revision defaults to 0 (unsynced local draft)
+      // server_updated_at is strictly NULL until synchronized with the backend
+      await db.execAsync(`
+        CREATE TABLE IF NOT EXISTS mood_entries (
+          id TEXT PRIMARY KEY NOT NULL,
+          user_id TEXT NOT NULL DEFAULT 'guest',
+          mood_type TEXT NOT NULL,
+          note TEXT,
+          tags TEXT NOT NULL DEFAULT '[]',
+          logged_at TEXT NOT NULL,
+          server_revision INTEGER NOT NULL DEFAULT 0,
+          server_updated_at TEXT,
+          is_deleted INTEGER NOT NULL DEFAULT 0,
+          deleted_at TEXT,
+          created_at TEXT NOT NULL,
+          updated_at TEXT NOT NULL
+        );
+
+        CREATE INDEX IF NOT EXISTS idx_mood_entries_user_deleted ON mood_entries(user_id, is_deleted);
+        CREATE INDEX IF NOT EXISTS idx_mood_entries_logged_at ON mood_entries(logged_at);
+        CREATE INDEX IF NOT EXISTS idx_mood_entries_mood_type ON mood_entries(mood_type);
+        CREATE INDEX IF NOT EXISTS idx_mood_entries_updated_at ON mood_entries(updated_at);
+      `);
+    },
+  },
 ];
 
 /**

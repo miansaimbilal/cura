@@ -5,8 +5,12 @@
  * - All calendar dates are represented and stored as 'YYYY-MM-DD' local date strings.
  *   This avoids UTC offset conversion bugs where a user's local date changes crossing midnight.
  * - All times are represented and stored as 'HH:MM' 24-hour local time strings.
- * - Timestamps (createdAt, updatedAt, completedAt, etc.) are stored as ISO 8601 strings.
+ * - Timestamps (createdAt, updatedAt, completedAt, loggedAt, etc.) are stored as ISO 8601 strings.
+ * - Note on Timezones: Historical timestamps are interpreted using the device's current local timezone.
+ *   Date boundaries are calculated locally and converted into inclusive start / exclusive end ISO timestamp ranges.
  */
+
+import { DateRange } from '../types/analytics';
 
 /**
  * Returns the local date string in YYYY-MM-DD format.
@@ -16,6 +20,29 @@ export function getLocalDateString(date: Date = new Date()): string {
   const month = String(date.getMonth() + 1).padStart(2, '0');
   const day = String(date.getDate()).padStart(2, '0');
   return `${year}-${month}-${day}`;
+}
+
+/**
+ * Converts any ISO 8601 timestamp string into a local YYYY-MM-DD date string.
+ * Uses the device's local calendar and timezone rather than a raw UTC substring.
+ */
+export function toLocalDateString(isoString: string): string {
+  const d = new Date(isoString);
+  if (isNaN(d.getTime())) {
+    return '';
+  }
+  return getLocalDateString(d);
+}
+
+/**
+ * Converts any ISO 8601 timestamp string into local HH:MM 24-hour time format.
+ */
+export function toLocalTimeString(isoString: string): string {
+  const d = new Date(isoString);
+  if (isNaN(d.getTime())) {
+    return '';
+  }
+  return getLocalTimeString(d);
 }
 
 /**
@@ -31,8 +58,7 @@ export function getLocalTimeString(date: Date = new Date()): string {
  * Returns the local date string for tomorrow.
  */
 export function getTomorrowDateString(baseDate: Date = new Date()): string {
-  const tomorrow = new Date(baseDate);
-  tomorrow.setDate(tomorrow.getDate() + 1);
+  const tomorrow = new Date(baseDate.getFullYear(), baseDate.getMonth(), baseDate.getDate() + 1);
   return getLocalDateString(tomorrow);
 }
 
@@ -77,8 +103,7 @@ export function formatDisplayDate(dateStr: string | null | undefined, referenceD
   const tomorrowStr = getTomorrowDateString(referenceDate);
   if (dateStr === tomorrowStr) return 'Tomorrow';
 
-  const yesterday = new Date(referenceDate);
-  yesterday.setDate(yesterday.getDate() - 1);
+  const yesterday = new Date(referenceDate.getFullYear(), referenceDate.getMonth(), referenceDate.getDate() - 1);
   if (dateStr === getLocalDateString(yesterday)) return 'Yesterday';
 
   const [yearStr, monthStr, dayStr] = dateStr.split('-');
@@ -90,7 +115,6 @@ export function formatDisplayDate(dateStr: string | null | undefined, referenceD
     day: 'numeric',
   };
 
-  // If the year is different from current year, include the year
   if (date.getFullYear() !== referenceDate.getFullYear()) {
     options.year = 'numeric';
   }
@@ -135,4 +159,86 @@ export function isTaskOverdue(
   }
 
   return false;
+}
+
+/**
+ * Computes the inclusive start and exclusive end timestamp range for a single local calendar day.
+ * Handles daylight saving transitions without assuming a 24-hour day.
+ */
+export function getLocalDayRange(date: Date = new Date()): DateRange {
+  const year = date.getFullYear();
+  const month = date.getMonth();
+  const day = date.getDate();
+
+  const startDate = new Date(year, month, day, 0, 0, 0, 0);
+  const nextDate = new Date(year, month, day + 1, 0, 0, 0, 0);
+
+  const dateStr = getLocalDateString(startDate);
+  const label = formatDisplayDate(dateStr, date);
+
+  return {
+    startDate: dateStr,
+    endDate: dateStr,
+    startISO: startDate.toISOString(),
+    endISO: nextDate.toISOString(),
+    label,
+  };
+}
+
+/**
+ * Computes the calendar week range (Monday 00:00:00 to next Monday 00:00:00 exclusive).
+ * Aligns with ISO 8601 where Monday is day 1.
+ */
+export function getCalendarWeekRange(referenceDate: Date = new Date()): DateRange {
+  const currentDay = referenceDate.getDay(); // 0 is Sun, 1 is Mon, ..., 6 is Sat
+  // Distance back to Monday: If Sunday (0), distance is 6. Otherwise day - 1.
+  const distanceToMonday = currentDay === 0 ? 6 : currentDay - 1;
+
+  const year = referenceDate.getFullYear();
+  const month = referenceDate.getMonth();
+  const day = referenceDate.getDate();
+
+  const mondayDate = new Date(year, month, day - distanceToMonday, 0, 0, 0, 0);
+  const sundayDate = new Date(year, month, day - distanceToMonday + 6, 23, 59, 59, 999);
+  const nextMondayDate = new Date(year, month, day - distanceToMonday + 7, 0, 0, 0, 0);
+
+  const startStr = getLocalDateString(mondayDate);
+  const endStr = getLocalDateString(sundayDate);
+
+  const startFmt = mondayDate.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+  const endFmt = sundayDate.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+  const label = `${startFmt} – ${endFmt}`;
+
+  return {
+    startDate: startStr,
+    endDate: endStr,
+    startISO: mondayDate.toISOString(),
+    endISO: nextMondayDate.toISOString(),
+    label,
+  };
+}
+
+/**
+ * Computes the calendar month range (1st of month 00:00:00 to 1st of next month 00:00:00 exclusive).
+ */
+export function getCalendarMonthRange(referenceDate: Date = new Date()): DateRange {
+  const year = referenceDate.getFullYear();
+  const month = referenceDate.getMonth();
+
+  const firstDate = new Date(year, month, 1, 0, 0, 0, 0);
+  const nextMonthFirstDate = new Date(year, month + 1, 1, 0, 0, 0, 0);
+  const lastDayDate = new Date(year, month + 1, 0, 23, 59, 59, 999);
+
+  const startStr = getLocalDateString(firstDate);
+  const endStr = getLocalDateString(lastDayDate);
+
+  const label = firstDate.toLocaleDateString(undefined, { month: 'long', year: 'numeric' });
+
+  return {
+    startDate: startStr,
+    endDate: endStr,
+    startISO: firstDate.toISOString(),
+    endISO: nextMonthFirstDate.toISOString(),
+    label,
+  };
 }

@@ -11,8 +11,12 @@ import { SectionHeader } from '../../src/components/ui/SectionHeader';
 import { ModalSheet } from '../../src/components/ui/ModalSheet';
 import { useTheme } from '../../src/hooks/useTheme';
 import { useTasks } from '../../src/hooks/useTasks';
+import { useMood } from '../../src/hooks/useMood';
 import { MOODS } from '../../src/constants';
+import { MoodType, CreateMoodInput } from '../../src/types/mood';
 import { TaskFormModal } from '../../src/components/tasks/TaskFormModal';
+import { MoodLogModal } from '../../src/components/mood/MoodLogModal';
+import { TaskProgressRing } from '../../src/components/charts/TaskProgressRing';
 import { formatDisplayTime } from '../../src/utils/date';
 import { CreateTaskInput } from '../../src/types/task';
 
@@ -20,10 +24,12 @@ export default function HomeScreen() {
   const { theme, themeMode, setThemeMode, isDark } = useTheme();
   const router = useRouter();
   const { filteredTasks, todaySummary, toggleComplete, createTask } = useTasks();
+  const { latestMood, createMood } = useMood();
 
-  const [selectedMoodPreview, setSelectedMoodPreview] = useState<string>('calm');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isTaskFormOpen, setIsTaskFormOpen] = useState(false);
+  const [isMoodModalOpen, setIsMoodModalOpen] = useState(false);
+  const [moodModalPreset, setMoodModalPreset] = useState<MoodType>('calm');
 
   const toggleTheme = () => {
     const nextMode = themeMode === 'dark' ? 'light' : themeMode === 'light' ? 'system' : 'dark';
@@ -113,37 +119,42 @@ export default function HomeScreen() {
         />
       </Card>
 
-      {/* Mood Spectrum Design Preview */}
+      {/* Mood Overview Section (SPEC 5.1 & Phase 4 Integration) */}
       <SectionHeader
-        title="Mood Spectrum"
-        subtitle="Visual design preview of non-judgmental mood tokens"
+        title="Mood Overview"
+        subtitle={latestMood ? `Latest feeling: ${MOODS.find(m => m.id === latestMood.moodType)?.label || latestMood.moodType}` : 'Quick mood check-in'}
+        actionText="Open Tracker"
+        onActionPress={() => router.push('/(tabs)/mood')}
       />
       <View style={styles.moodRow}>
         {MOODS.slice(0, 5).map((m) => {
-          const isSelected = selectedMoodPreview === m.id;
+          const isLatest = latestMood?.moodType === m.id;
           const moodColor = theme.colors.moods[m.colorKey];
           return (
             <TouchableOpacity
               key={m.id}
               activeOpacity={0.75}
-              onPress={() => setSelectedMoodPreview(m.id)}
+              onPress={() => {
+                setMoodModalPreset(m.id as MoodType);
+                setIsMoodModalOpen(true);
+              }}
               style={[
                 styles.moodPill,
                 {
-                  backgroundColor: isSelected ? theme.colors.surfaceElevated : theme.colors.surface,
-                  borderColor: isSelected ? moodColor : theme.colors.borderSubtle,
-                  borderWidth: isSelected ? 1.5 : 1,
+                  backgroundColor: isLatest ? theme.colors.surfaceElevated : theme.colors.surface,
+                  borderColor: isLatest ? moodColor : theme.colors.borderSubtle,
+                  borderWidth: isLatest ? 1.5 : 1,
                 },
               ]}
             >
               <Ionicons
                 name={m.icon as any}
                 size={20}
-                color={isSelected ? moodColor : theme.colors.textMuted}
+                color={isLatest ? moodColor : theme.colors.textMuted}
               />
               <Text
                 variant="caption"
-                color={isSelected ? theme.colors.textPrimary : theme.colors.textSecondary}
+                color={isLatest ? theme.colors.textPrimary : theme.colors.textSecondary}
                 style={styles.moodLabel}
               >
                 {m.label}
@@ -153,7 +164,7 @@ export default function HomeScreen() {
         })}
       </View>
 
-      {/* Today's Tasks Summary Card (Connected to Local SQLite Data) */}
+      {/* Today's Tasks Summary Card (Connected to Local SQLite Data & Progress Ring) */}
       <SectionHeader
         title="Today's Focus"
         actionText="View all"
@@ -161,28 +172,14 @@ export default function HomeScreen() {
       />
       <Card variant="surface" style={styles.taskCard}>
         <View style={styles.taskCardRow}>
-          <View
-            style={[
-              styles.progressRingPlaceholder,
-              {
-                borderColor: todaySummary.total > 0 && completionPercentage === 100
-                  ? theme.colors.success
-                  : theme.colors.accent,
-              },
-            ]}
-          >
-            <Text
-              variant="subheading"
-              color={
-                todaySummary.total > 0 && completionPercentage === 100
-                  ? theme.colors.success
-                  : theme.colors.accent
-              }
-              weight="700"
-            >
-              {todaySummary.total > 0 ? `${completionPercentage}%` : '0%'}
-            </Text>
-          </View>
+          <TaskProgressRing
+            total={todaySummary.total}
+            completed={todaySummary.completed}
+            percentage={todaySummary.total > 0 ? completionPercentage : null}
+            size={68}
+            strokeWidth={7}
+            showDetails={false}
+          />
           <View style={styles.taskStatsColumn}>
             <Text variant="heading3">
               {todaySummary.total > 0
@@ -274,6 +271,16 @@ export default function HomeScreen() {
         visible={isTaskFormOpen}
         onClose={() => setIsTaskFormOpen(false)}
         onSave={handleCreateTask}
+      />
+
+      {/* Quick Mood Log Modal from Home */}
+      <MoodLogModal
+        visible={isMoodModalOpen}
+        onClose={() => setIsMoodModalOpen(false)}
+        onSave={async (d) => {
+          await createMood(d as CreateMoodInput);
+        }}
+        initialMood={moodModalPreset}
       />
     </ScreenContainer>
   );

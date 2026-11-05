@@ -135,3 +135,45 @@ This document records the foundational architectural, technical, and product dec
 - **The Decision:** Incorporate `server_revision` (integer), `server_updated_at` (timestamptz), `is_deleted` (boolean), and `deleted_at` (timestamptz) across all synchronizable tables (`users`, `user_preferences`, `tasks`, `mood_entries`, `conversations`).
 - **Why it was made:** Guarantees that the database schema is completely prepared for Phase 3 and Phase 4 delta-based offline synchronization (`GET /api/sync/pull?since_revision=X` and `POST /api/sync/push`) without requiring disruptive schema alterations in later phases.
 
+
+
+---
+
+## 4. Phase 4 Mood Tracking & Analytics Decisions
+
+### Decision 4.1: Non-Judgmental Categorical Mood Visualizations
+- **The Decision:** Reject 1-dimensional numerical mood scores and emotional tier-grouping. Implement purely categorical representations:
+  - **Day:** Chronological 24-hour emotional timeline (`DayMoodTimeline`) showing authentic mood labels, icons, 12h AM/PM timestamps, reflection notes, and context tags.
+  - **Week:** 7-day Monday–Sunday calendar rhythm strip (`WeekMoodStrip`) showing actual recorded mood badges per weekday, with clean dashes (`—`) for unrecorded days.
+  - **Month:** Calendar-style monthly mood matrix (`MonthMoodMatrix`) displaying colored mood dots per day with tap-to-inspect reflections.
+  - **Distribution:** Responsive SVG donut chart (`MoodDistributionDonut`) counting recorded entries per mood category with percentages.
+- **Why it was made:** Confirmed by user alignment and SPEC 2.1 (Non-judgmental experience) and SPEC 13.2. Collapsing distinct emotional states (e.g. *Tired* vs *Calm* vs *Anxious*) into a single score conflates energy with pleasantness and creates misleading numerical precision.
+- **Alternatives considered:** 1–5 valence scale or 3-tier grouping (rejected as reductionist and judgmental).
+
+### Decision 4.2: Historical Task Activity via Day-Level Last Transition Rule
+- **The Decision:** Calculate daily task activity throughput using `task_history` transitions (`action IN ('completed', 'uncompleted')`), grouping by the user's local calendar day.
+- **Insertion-Order Tie-Breaking:** Order transitions deterministically by `timestamp DESC, rowid DESC` using SQLite's built-in monotonic integer `rowid` (avoiding unordered UUID tie-breaking).
+- **Counting Rule:** A task contributes $+1$ to a local day's activity if and only if its latest completion-state transition on that day was `action = 'completed'`. Other actions (`edited`, `postponed`, `cancelled`, `deleted`) do not override the completion state.
+- **Why it was made:** Preserves historical accomplishments across subsequent uncompletions or soft-deletions on later days, prevents double-counting from rapid toggles, and neutralizes same-day accidental check/uncheck taps.
+- **Alternatives considered:** Counting snapshot `completed_at` (erases past completions retroactively upon uncompletion).
+
+### Decision 4.3: Calendar Period Boundaries (Monday–Sunday Week & Monthly Matrix)
+- **The Decision:** Adopt standard local calendar boundaries:
+  - **Day:** Local calendar day (`00:00:00.000` to `23:59:59.999`).
+  - **Week:** Monday through Sunday (ISO 8601 standard).
+  - **Month:** 1st of month through last day of month.
+- **Timezone Handling:** Convert all ISO timestamps to local calendar strings using `toLocalDateString` based on the device's local timezone, never using raw UTC substring slicing.
+- **Why it was made:** Aligns with human mental models, calendar planning, and SPEC 7.4 ("You logged more tired moods this week than last week").
+
+### Decision 4.4: Local SQLite Sync Contract for Mood Entries
+- **The Decision:** In migration `0003_mood_entries`:
+  - `server_revision INTEGER NOT NULL DEFAULT 0` (0 for unsynced local drafts).
+  - `server_updated_at TEXT` (strictly nullable, NULL until first verified server sync).
+  - Outbound mutation payloads omit `serverUpdatedAt` so PostgreSQL generates the authoritative timestamp.
+  - Unsynced deletions (`server_revision === 0`) remove the pending `INSERT` from `sync_outbox` while soft-deleting locally, avoiding unnecessary server `DELETE` mutations.
+  - Unsynced edits coalesce into the pending `INSERT` payload.
+- **Why it was made:** Strictly preserves the approved Phase 3 offline-first sync contract and eliminates timestamp spoofing.
+
+### Decision 4.5: Single Source of Truth for Mood History
+- **The Decision:** Use `mood_entries` as the single source of truth for both current entries and chronological history. Updates modify records in-place (`updated_at = now`) and queue outbox mutations. Do not create a separate `mood_history` audit table.
+- **Why it was made:** Mood entries are point-in-time reflections, not multi-stage state machines like tasks. An audit ledger of text edits adds useless database overhead without user-facing benefit.
