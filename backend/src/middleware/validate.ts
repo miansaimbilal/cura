@@ -13,8 +13,12 @@ export function validate(schema: AnyZodObject) {
       if ('body' in parsed) {
         req.body = (parsed as { body?: unknown }).body;
       }
-      if ('query' in parsed) {
-        req.query = (parsed as { query?: typeof req.query }).query ?? req.query;
+      if ('query' in parsed && (parsed as { query?: unknown }).query !== undefined) {
+        Object.defineProperty(req, 'query', {
+          value: (parsed as { query?: unknown }).query,
+          writable: true,
+          configurable: true,
+        });
       }
       if ('params' in parsed) {
         req.params = (parsed as { params?: typeof req.params }).params ?? req.params;

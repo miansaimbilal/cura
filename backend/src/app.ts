@@ -5,6 +5,8 @@ import { env } from './config/env';
 import { requestLogger } from './middleware/requestLogger';
 import { errorHandler } from './middleware/errorHandler';
 import { authRouter } from './modules/auth/auth.routes';
+import { aiRouter } from './modules/ai/ai.routes';
+import { chatRouter } from './modules/chat/chat.routes';
 import { checkDatabaseConnection } from './db/index';
 
 export const app = express();
@@ -51,6 +53,8 @@ app.get('/api/health', async (_req, res) => {
 
 // API Routes
 app.use('/api/auth', authRouter);
+app.use('/api/ai', aiRouter);
+app.use('/api/chat', chatRouter);
 
 // 404 Route Handler
 app.use((_req, res) => {

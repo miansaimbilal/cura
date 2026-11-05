@@ -6,8 +6,8 @@ export const userPreferences = pgTable('user_preferences', {
     .primaryKey()
     .references(() => users.id, { onDelete: 'cascade' }),
   themeMode: varchar('theme_mode', { length: 10 }).default('dark').notNull(),
-  selectedChatProvider: varchar('selected_chat_provider', { length: 50 }).default('gemini').notNull(),
-  selectedChatModel: varchar('selected_chat_model', { length: 50 }).default('gemini-1.5-flash').notNull(),
+  selectedChatProvider: varchar('selected_chat_provider', { length: 50 }).default('groq').notNull(),
+  selectedChatModel: varchar('selected_chat_model', { length: 100 }),
   selectedCountry: varchar('selected_country', { length: 10 }).default('US').notNull(),
   aiIncludeTasks: boolean('ai_include_tasks').default(true).notNull(),
   aiIncludeMoods: boolean('ai_include_moods').default(true).notNull(),

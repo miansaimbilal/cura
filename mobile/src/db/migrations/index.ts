@@ -159,6 +159,55 @@ export const migrations: Migration[] = [
       `);
     },
   },
+  {
+    version: 4,
+    name: '0004_conversations_and_messages',
+    up: async (db: IDatabase) => {
+      // 1. Create local conversations table
+      await db.execAsync(`
+        CREATE TABLE IF NOT EXISTS conversations (
+          id TEXT PRIMARY KEY NOT NULL,
+          user_id TEXT NOT NULL DEFAULT 'guest',
+          title TEXT,
+          conversation_type TEXT NOT NULL DEFAULT 'general',
+          server_revision INTEGER NOT NULL DEFAULT 0,
+          server_updated_at TEXT,
+          is_deleted INTEGER NOT NULL DEFAULT 0,
+          deleted_at TEXT,
+          created_at TEXT NOT NULL,
+          updated_at TEXT NOT NULL
+        );
+
+        CREATE TABLE IF NOT EXISTS messages (
+          id TEXT PRIMARY KEY NOT NULL,
+          conversation_id TEXT NOT NULL,
+          sender TEXT NOT NULL,
+          content TEXT NOT NULL,
+          status TEXT NOT NULL DEFAULT 'completed',
+          provider_used TEXT,
+          model_used TEXT,
+          client_message_id TEXT,
+          created_at TEXT NOT NULL,
+          FOREIGN KEY (conversation_id) REFERENCES conversations(id) ON DELETE CASCADE
+        );
+
+        CREATE TABLE IF NOT EXISTS conversation_summaries (
+          id TEXT PRIMARY KEY NOT NULL,
+          conversation_id TEXT NOT NULL,
+          summary_text TEXT NOT NULL,
+          key_topics TEXT NOT NULL DEFAULT '[]',
+          last_message_id TEXT,
+          created_at TEXT NOT NULL,
+          updated_at TEXT NOT NULL,
+          FOREIGN KEY (conversation_id) REFERENCES conversations(id) ON DELETE CASCADE
+        );
+
+        CREATE INDEX IF NOT EXISTS idx_conversations_user_updated ON conversations(user_id, is_deleted, updated_at);
+        CREATE INDEX IF NOT EXISTS idx_messages_conversation_created ON messages(conversation_id, created_at);
+        CREATE INDEX IF NOT EXISTS idx_messages_client_id ON messages(client_message_id);
+      `);
+    },
+  },
 ];
 
 /**

@@ -177,3 +177,123 @@ This document records the foundational architectural, technical, and product dec
 ### Decision 4.5: Single Source of Truth for Mood History
 - **The Decision:** Use `mood_entries` as the single source of truth for both current entries and chronological history. Updates modify records in-place (`updated_at = now`) and queue outbox mutations. Do not create a separate `mood_history` audit table.
 - **Why it was made:** Mood entries are point-in-time reflections, not multi-stage state machines like tasks. An audit ledger of text edits adds useless database overhead without user-facing benefit.
+
+---
+
+## 5. Phase 5 AI Provider System Decisions
+
+### Decision 5.1: Standardized Native HTTP Provider Abstraction (Zero Heavy SDKs)
+- **The Decision:** Implement all 5 AI provider adapters (Google Gemini, Groq, OpenRouter, Cloudflare Workers AI, and xAI Grok) using a centralized `IAIProvider` interface powered by Node.js native `fetch` and `AbortSignal.timeout` via `executeAIHttpRequest`. Do not install 5 separate heavy provider SDK packages.
+- **Why it was made:** Confirmed by architecture guidelines and user requirements. 4 of the 5 providers follow standard JSON chat completion endpoints (OpenAI-compatible for Groq, OpenRouter, and xAI Grok; Cloudflare AI REST; Gemini REST v1beta). Native `fetch` avoids native binary compilation, dependency bloat, peer dependency version collisions, and allows unified timeout, header injection, and sanitized error mapping.
+- **Alternatives considered:** Installing `@google/genai`, `groq-sdk`, `openai`, `cloudflare` packages (adds hundreds of indirect dependencies and risks breaking changes).
+
+### Decision 5.2: Strict Dual-Mode Execution (Background Failover vs Interactive Single-Provider)
+- **The Decision:** Enforce a strict bifurcation in `AIFailoverEngine`:
+  - **Background AI Operations (`executeBackground`):** Automated multi-provider fallback. Retries sequentially through configurable priority order (`GEMINI` -> `GROQ` -> `OPENROUTER` -> `CLOUDFLARE` -> `XAI`) *only* when the failure is retryable (`RATE_LIMITED`, `QUOTA_EXCEEDED`, `TIMEOUT`, `NETWORK_ERROR`, `PROVIDER_UNAVAILABLE`). Halts immediately without failover on non-retryable errors (`AUTHENTICATION_ERROR`, `INVALID_REQUEST`, `MODEL_UNAVAILABLE`). Never attempts the same provider twice.
+  - **Interactive AI Operations (`executeInteractive`):** Strictly locks to a single selected provider. Never performs silent provider failover. If quota or rate limits are reached, throws structured `AIProviderError` (`RATE_LIMITED` or `QUOTA_EXCEEDED`) with HTTP 429 so Phase 6 chat can inform the user and retain the unsent message in local draft state.
+- **Why it was made:** Respects Decision 0.4 and Phase 5 objective. Conversational tone, temperature, persona, and user expectation shift if providers switch mid-conversation without user consent. Background workloads (insight generation, quote rotation) require maximum availability and benefit from seamless failover.
+
+### Decision 5.3: Normalized Error Classification & Secret Masking
+- **The Decision:** Classify all provider responses and HTTP codes into 10 normalized `AIErrorCategory` types with deterministic retryability flags. All error messages and logs pass through `sanitizeErrorString`, which strips Bearer tokens, query param keys, and API key headers before any client response or telemetry logging.
+- **Why it was made:** Shields client applications from raw provider stack traces or proprietary error structures while preventing accidental credential leakage.
+
+### Decision 5.4: Centralized Non-Breaking Multi-Provider Environment Configuration
+- **The Decision:** Centralize provider configuration and default models in `backend/src/config/env.ts` and `ai.config.ts`. All API keys are optional. Missing credentials for unused providers do not crash server boot, but gracefully flag the provider as unconfigured (`isConfigured: false`).
+- **Why it was made:** Allows developers and deployments to supply only the API keys they possess while maintaining a fully functioning backend.
+
+### Decision 5.5: Dynamic Model Configuration & Discovery Architecture
+- **The Decision:** Treat all model identifiers as configurable defaults rather than permanently hardcoded adapter constants. Support request-level model overrides (`request.model`) that cleanly fallback to the provider's configured default model. Implement backend-driven model catalogue discovery (`IAIProvider.listAvailableModels` and `GET /api/ai/models`) using provider credentials without exposing secrets. If model listing endpoints are unavailable or fail, gracefully fall back to returning the configured default model without crashing application startup or health tracking.
+- **Why it was made:** Provider model availability, free-tier quotas, and deprecations change frequently. Hardcoding model IDs creates maintenance churn. Discovery allows dynamic discovery of supported models without fabricating unverified models.
+
+### Decision 5.6: HTTP 403 Discrimination (Quota vs Capability vs Auth)
+- **The Decision:** Do not automatically classify all HTTP 403 errors as `AUTHENTICATION_ERROR`. Inspect error response bodies:
+  - If 403 contains quota, credit, billing, or balance depletion markers, classify as `QUOTA_EXCEEDED` (retryable for background failover).
+  - If 403 contains model access restrictions or elevated permission requirements, classify as `UNSUPPORTED_CAPABILITY` (non-retryable).
+  - Otherwise, classify as `AUTHENTICATION_ERROR` (non-retryable).
+- **Why it was made:** Many AI providers and cloud gateways return 403 when project billing caps or tiered credit allowances are exhausted. Treating these as authentication errors would incorrectly prevent background failover.
+
+### Decision 5.7: Standardized Retry-After Parsing & Cooldown-Aware Failover
+- **The Decision:** Parse the standard HTTP `Retry-After` response header supporting both integer seconds (e.g. `"30"`) and standard HTTP-date formats (`"Wed, 21 Oct 2026 07:28:00 GMT"`). Propagate `retryAfterSeconds` through normalized `AIProviderError` and use it to calibrate provider cooldowns (capped at 300s). In background failover, prioritize providers that are not currently in cooldown, and immediately retry through eligible alternate providers without blocking or sleeping.
+- **Why it was made:** Respects provider rate-limit guidance while ensuring background AI tasks do not block the worker thread waiting on a single rate-limited provider.
+
+### Decision 5.8: Operator-Configured Model Selection & Cross-Provider Model Isolation
+- **The Decision:** Treat all model IDs as fully configurable by the product owner/operator rather than permanently hardcoding model defaults. If no model is configured for a provider/workload and none is specified in request options, the system rejects the request with a clear configuration error (`INVALID_REQUEST`) rather than silently guessing a model.
+  - **Dynamic Model Discovery:** Providers implement discovery endpoints returning `status: 'discovered'` (fresh from live API), `status: 'cached'` (served from in-memory TTL cache), or `status: 'fallback_unverified'` (when provider APIs are unreachable or unconfigured).
+  - **Failover Model Isolation:** In `AIFailoverEngine`, when a caller provides a provider-specific `request.model`, this model is applied exclusively to the primary provider. If retryable failover occurs to an alternate provider, the fallback provider uses its own valid configured model rather than inheriting an incompatible model ID from the primary provider.
+- **Why it was made:** Provider model availability, free-tier quotas, and deprecations change frequently (e.g. legacy models being retired). Hardcoding model IDs creates maintenance churn. Operator-configured models ensure the product owner retains full control over model choices without mobile app rebuilds.
+
+### Decision 5.9: Multi-Key Credential Infrastructure & Intelligent Quota-Aware Rotation
+- **The Decision:** Support configurable collections of credentials per provider through an in-memory `CredentialPool`. Providers are configured via backend environment secrets (`GEMINI_API_KEYS`, `GROQ_API_KEYS`, `OPENROUTER_API_KEYS`, `CLOUDFLARE_CREDENTIALS`, `XAI_API_KEYS`) supporting JSON arrays or comma-separated lists, with transparent fallback to legacy single-key variables.
+  - **Load Balancing:** Requests within a provider rotate across enabled credentials using least-recently-used (LRU) selection.
+  - **Rate Limit & Quota Rotation:** If a key hits 429 (`RATE_LIMITED`) or 403 quota exhaustion (`QUOTA_EXCEEDED`), that specific key is placed in cooldown respecting `Retry-After`, and the provider immediately rotates to the next available key for the same provider.
+  - **Quarantine on Authentication Failure:** If a key fails with 401/403 invalid key (`AUTHENTICATION_ERROR`), it is immediately quarantined (`quarantined = true`, `enabled = false`) and removed from future rotations.
+  - **Non-Rotation on Request / Model Bugs:** If a request fails due to 404 (`MODEL_UNAVAILABLE`), 400 (`INVALID_REQUEST`), or `UNSUPPORTED_CAPABILITY`, credentials are NOT rotated, preventing good keys from being burned on invalid requests.
+  - **Security:** Credentials have internal identifiers (`key_1`, `key_2`, etc.) and are never exposed in public API responses, mobile configuration, or diagnostic health outputs.
+- **Why it was made:** High-volume operations, tiered API accounts, and free-tier limits benefit from multi-key rotation across accounts without requiring multi-provider fallback.
+
+### Decision 5.10: Workload-Specific Routing & User-Controlled Model Selection
+- **The Decision:** Enforce workload-specific routing with policy boundaries:
+  - **Interactive Chat (`workload: 'chat'`):** Allowed providers are strictly restricted to economical, low-latency providers (`groq`, `openrouter`). Default provider is `groq`. Models are operator-configured (e.g. conversational models discovered via `GET /api/ai/models?provider=groq`). Requesting an unpermitted provider (e.g. Gemini or Cloudflare) is rejected with `UNSUPPORTED_CAPABILITY`. Rotates credentials within the chosen provider, but NEVER silently switches providers or models.
+  - **Analytics & Background Insights (`workload: 'analytics'`):** Allowed providers are `gemini`, `openrouter`, and `cloudflare`. Default provider is `gemini` with fallback to `['openrouter', 'cloudflare']`. If all credentials of the primary provider fail with retryable errors, automatically falls back across the allowed analytics chain, stripping primary model overrides to preserve model compatibility.
+  - **Model Discovery Scoping:** `GET /api/ai/models?workload=chat` and `GET /api/ai/models?workload=analytics` scope discovered models strictly to allowed providers for each workload.
+- **Why it was made:** Chat requires deterministic conversational style and low latency without jarring provider shifts. Analytics requires high throughput and maximum uptime via graceful failover. Product owners maintain full control over models and providers.
+
+### Decision 5.11: Multi-Category HTTP 403 Discrimination (Quota vs Account Restriction vs Model Permission vs General Forbidden)
+- **The Decision:** Classify HTTP 403 errors across four discrete categories rather than treating all 403 responses as quota exhaustion:
+  1. **Quota Exhaustion (403):** Signals of exhausted credits, balance depletion, or quota limits -> `QUOTA_EXCEEDED` (retryable). The provider marks the current key in cooldown and rotates to the next available credential.
+  2. **Account Usage Restrictions (403):** Signals of regional, tier, or plan restrictions on that specific credential -> `QUOTA_EXCEEDED` with `account_restricted` reason (retryable). The provider rotates to the next available credential which may have different account entitlements.
+  3. **Model Permission / Access Restrictions (403):** Signals that the requested model requires special access or agreements -> `UNSUPPORTED_CAPABILITY` (non-retryable). The provider immediately rethrows without rotating credentials, avoiding burning healthy keys.
+  4. **General Forbidden (403):** Standard forbidden requests (e.g. IP block, CORS, administrative forbidden) -> `AUTHENTICATION_ERROR` (non-retryable). Halts immediately without rotating through credentials.
+- **Why it was made:** Prevents wasting healthy credentials on model access restrictions or forbidden requests, while ensuring legitimate quota/account issues trigger smooth rotation.
+
+### Decision 5.12: Credential-Pool Lifecycle & Production Concurrency Architecture
+- **The Decision:** Maintain credential pools in-memory within the Node.js backend process for Phase 5. Cooldown timers, quarantine flags, and LRU timestamps reside in process memory and reset upon server restart.
+  - **Single Instance:** Thread-safe via Node.js single-threaded event loop.
+  - **Horizontal Multi-Instance Scaling:** Each instance manages its own in-memory pool independently. While redundant requests may independently encounter a 429 before cooling down a key, this eliminates database round-trip overhead on every AI request. If cross-instance coordination is required in future high-scale production, a lightweight PostgreSQL table (`ai_credential_health`) can be introduced without changing adapter interfaces.
+- **Why it was made:** Avoids premature infrastructure complexity (Redis or distributed locks) while providing zero-overhead, highly resilient key rotation for Phase 5.
+
+### Decision 5.13: Runtime Model Configuration Architecture
+- **The Decision:** Decouple AI model and provider selections from mobile application binaries. The backend dynamically resolves models via environment variables (`AI_CHAT_MODEL`, `AI_ANALYTICS_MODEL`), request options, or discovered model catalogues (`GET /api/ai/models`).
+- **Why it was made:** Changing a provider or model ID does not require rebuilding or resubmitting the mobile app to app stores. Model switches can be applied instantly on the backend or controlled dynamically in Phase 6/7.
+
+---
+
+## 7. Phase 6 AI Chat and Persistent Context Decisions
+
+### Decision 6.1: Server-Sent Events (SSE) Streaming Protocol for Interactive Chat
+- **The Decision:** Implement interactive chat token streaming over standard HTTP Server-Sent Events (SSE) via `POST /api/chat/conversations/:id/messages/stream`.
+  - **Protocol Format:** Standard `text/event-stream` with explicit event types:
+    - `event: start` — Emits `messageId`, `clientMessageId`, `conversationId`, and `provider`.
+    - `event: chunk` — Emits delta token chunks (`{ content: string }`).
+    - `event: done` — Emits final assembled message, token usage, and status `completed`.
+    - `event: error` — Emits structured error object (`{ code: string, message: string }`).
+  - **Stream Cancellation:** The backend listens to client connection drops via `req.on('close')` and propagates an `AbortSignal` directly into the provider adapter's streaming loop. If aborted mid-stream, the assistant message record is marked as `interrupted` with partial content preserved.
+- **Why it was made:** SSE is HTTP-native, works smoothly across corporate proxies and mobile networks without connection upgrade overhead, and eliminates the heavy stateful infrastructure required by WebSockets.
+- **Alternatives considered:** WebSockets (unnecessary connection lifecycle complexity for unidirectional streaming), polling (high latency, inefficient bandwidth).
+
+### Decision 6.2: Bounded Context Architecture & Privacy Safeguards
+- **The Decision:** Assemble AI prompt context strictly at request time on the backend through a dedicated `ChatContextBuilder`:
+  - **Bounded Message History:** Enforces a rolling window of recent turns (latest 20 messages) plus any asynchronous rolling summary.
+  - **Granular Privacy Controls:** User preferences `ai_include_tasks` and `ai_include_moods` are checked on every turn. If disabled by the user, task listings and mood entries are completely omitted from the context.
+  - **Bounded User Records:** When enabled, task context is bounded to active today/upcoming/overdue tasks (max 10), and mood context is bounded to the last 3 days of check-ins.
+  - **Tone & Safety System Prompt:** Enforces an empathetic, supportive, non-judgmental companion persona that never offers medical or psychiatric diagnosis. If crisis or severe distress markers are detected, the system safely directs the user to professional support hotlines (e.g., 988 in the US, international resources) with non-stigmatizing language.
+  - **Data Segregation:** AI interpretations and summaries are strictly stored in `conversation_summaries` and `messages`. AI responses can never directly mutate user tasks or mood logs.
+- **Why it was made:** Guarantees strict user privacy, avoids unbounded prompt tokens and context overflow, prevents AI hallucination from mutating user state, and ensures crisis-safe behavior.
+
+### Decision 6.3: Mobile Offline-First Chat & Draft Preservation
+- **The Decision:** Store conversations and messages in mobile SQLite (`mobile/src/db/migrations/index.ts` Migration 0004):
+  - **Offline Browsing:** Users can access and read their complete conversation history offline.
+  - **Draft Preservation:** Draft messages are tracked per conversation in local memory/state (`activeDrafts[conversationId]`). If a user navigates away or network fails, the user's typed draft is retained.
+  - **Explicit Network Boundaries:** Cura never fakes AI responses offline. If the device is offline, a prominent offline indicator is displayed, the send button is disabled, and the user's input draft is preserved so it can be sent immediately once connectivity returns.
+- **Why it was made:** Aligns with Cura's core offline-first philosophy while maintaining honest expectations that AI generation requires backend connectivity.
+
+### Decision 6.4: Zero Silent Provider Fallback for Interactive Chat
+- **The Decision:** Interactive chat is strictly limited to permitted conversational providers (`groq` and `openrouter`). If a chat request fails due to rate limits or quota exhaustion, the backend and mobile client report a polite quota notice with estimated reset time. The system NEVER silently falls back to an alternative AI provider or unverified model for interactive chat.
+- **Why it was made:** Conversational style, tone, and latency differ significantly across AI models. Silently switching models mid-conversation produces jarring persona shifts that erode user trust.
+
+### Decision 6.5: Asynchronous Rolling Summaries
+- **The Decision:** When a conversation exceeds 20 messages, a rolling summary is scheduled asynchronously using the `analytics` workload (which supports background fallback across Gemini, OpenRouter, and Cloudflare).
+  - Summarization runs in the background and does not block the active SSE response.
+  - The generated summary is persisted in `conversation_summaries` and compressed into future context windows, allowing conversations to maintain long-term memory without token bloat.
+- **Why it was made:** Prevents unbounded context growth while leveraging robust multi-provider analytics failover without affecting interactive chat latency.
+

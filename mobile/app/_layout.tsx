@@ -4,6 +4,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { ThemeProvider, useTheme } from '../src/providers/ThemeProvider';
 import { TaskProvider } from '../src/providers/TaskProvider';
 import { MoodProvider } from '../src/providers/MoodProvider';
+import { ChatProvider } from '../src/providers/ChatProvider';
 import { ErrorBoundary } from '../src/components/common/ErrorBoundary';
 
 function RootNavigationLayout() {
@@ -37,7 +38,9 @@ export default function RootLayout() {
         <ThemeProvider>
           <TaskProvider>
             <MoodProvider>
-              <RootNavigationLayout />
+              <ChatProvider>
+                <RootNavigationLayout />
+              </ChatProvider>
             </MoodProvider>
           </TaskProvider>
         </ThemeProvider>

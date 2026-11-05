@@ -92,7 +92,7 @@ export default function HomeScreen() {
         </TouchableOpacity>
       </View>
 
-      {/* AI Companion Static Preview Card */}
+      {/* AI Companion Card */}
       <Card variant="surface" style={[styles.companionCard, { backgroundColor: theme.colors.surface }]}>
         <View style={styles.companionHeader}>
           <View style={[styles.companionIconBox, { backgroundColor: theme.colors.accentSubtle }]}>
@@ -100,10 +100,10 @@ export default function HomeScreen() {
           </View>
           <View style={styles.companionHeaderText}>
             <Text variant="subheading" color={theme.colors.accent}>
-              Cura Reflection Preview
+              Cura Companion
             </Text>
             <Text variant="caption" color={theme.colors.textMuted}>
-              Design Preview (Phase 6 Feature)
+              Daily reflection &amp; calm guidance
             </Text>
           </View>
         </View>
@@ -111,10 +111,10 @@ export default function HomeScreen() {
           {'"Take a deep breath. Today is a fresh opportunity to move at your own pace without pressure."'}
         </Text>
         <Button
-          title="Component Modal Demo"
+          title="Reflect with Cura"
           variant="secondary"
           size="sm"
-          onPress={() => setIsModalOpen(true)}
+          onPress={() => router.push('/(tabs)/chat' as any)}
           style={styles.checkinButton}
         />
       </Card>

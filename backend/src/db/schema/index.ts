@@ -4,6 +4,7 @@ export * from './tasks';
 export * from './moodEntries';
 export * from './conversations';
 export * from './messages';
+export * from './conversationSummaries';
 export * from './dailySummaries';
 export * from './aiInsights';
 export * from './refreshTokens';

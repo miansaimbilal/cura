@@ -1,5 +1,6 @@
 import type { Request, Response, NextFunction } from 'express';
 import { ZodError } from 'zod';
+import { AIProviderError, AllProvidersFailedError } from '../modules/ai/errors';
 
 export class AppError extends Error {
   constructor(
@@ -44,6 +45,49 @@ export function errorHandler(
         code: err.code,
         message: err.message,
         details: err.details,
+      },
+    });
+    return;
+  }
+
+  // 3. Normalized AI Provider Errors
+  if (err instanceof AIProviderError) {
+    let statusCode = err.statusCode ?? 502;
+    if (err.category === 'AUTHENTICATION_ERROR') statusCode = 502; // Internal provider auth misconfiguration
+    else if (err.category === 'RATE_LIMITED' || err.category === 'QUOTA_EXCEEDED') statusCode = 429;
+    else if (err.category === 'TIMEOUT') statusCode = 504;
+    else if (err.category === 'INVALID_REQUEST') statusCode = 400;
+    else if (err.category === 'MODEL_UNAVAILABLE') statusCode = 404;
+
+    if (err.retryAfterSeconds) {
+      res.setHeader('Retry-After', String(err.retryAfterSeconds));
+    }
+
+    res.status(statusCode).json({
+      success: false,
+      error: {
+        code: err.category,
+        message: err.message,
+        details: {
+          provider: err.provider,
+          isRetryable: err.isRetryable,
+          ...(err.retryAfterSeconds && { retryAfterSeconds: err.retryAfterSeconds }),
+        },
+      },
+    });
+    return;
+  }
+
+  // 4. All AI Providers Failed (Background Failover Exhaustion)
+  if (err instanceof AllProvidersFailedError) {
+    res.status(503).json({
+      success: false,
+      error: {
+        code: 'ALL_AI_PROVIDERS_UNAVAILABLE',
+        message: err.message,
+        details: {
+          attempts: err.attempts,
+        },
       },
     });
     return;

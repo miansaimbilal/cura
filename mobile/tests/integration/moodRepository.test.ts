@@ -25,7 +25,7 @@ describe('Real SQLite Database & Mood Repository (Integration Tests)', () => {
   describe('1. Migration 0003 & Database Initialization', () => {
     it('sets PRAGMA user_version = 3 upon completing migration 0003', async () => {
       const versionResult = await db.getFirstAsync<{ user_version: number }>('PRAGMA user_version;');
-      expect(versionResult?.user_version).toBe(3);
+      expect(versionResult?.user_version).toBeGreaterThanOrEqual(3);
     });
 
     it('creates mood_entries table and performance indexes in SQLite', async () => {

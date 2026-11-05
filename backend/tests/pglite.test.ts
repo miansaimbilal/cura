@@ -28,9 +28,17 @@ describe('Real In-Memory PostgreSQL Integration Tests (PGlite)', () => {
       path.resolve(__dirname, '../src/db/migrations/0001_demonic_misty_knight.sql'),
       'utf8'
     );
+    const migration2 = fs.readFileSync(
+      path.resolve(__dirname, '../src/db/migrations/0002_conversation_summaries_and_message_status.sql'),
+      'utf8'
+    );
 
     // Split statements on Drizzle breakpoint and execute sequentially
-    const statements = [...migration0.split('--> statement-breakpoint'), ...migration1.split('--> statement-breakpoint')];
+    const statements = [
+      ...migration0.split('--> statement-breakpoint'),
+      ...migration1.split('--> statement-breakpoint'),
+      ...migration2.split('--> statement-breakpoint'),
+    ];
     for (const stmt of statements) {
       const trimmed = stmt.trim();
       if (trimmed) {

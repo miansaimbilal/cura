@@ -10,6 +10,8 @@ export const messages = pgTable('messages', {
   content: text('content').notNull(),
   providerUsed: varchar('provider_used', { length: 50 }),
   modelUsed: varchar('model_used', { length: 50 }),
+  status: varchar('status', { length: 20 }).default('completed').notNull(), // 'completed' | 'interrupted' | 'failed'
+  clientMessageId: varchar('client_message_id', { length: 100 }),
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
 });
 
