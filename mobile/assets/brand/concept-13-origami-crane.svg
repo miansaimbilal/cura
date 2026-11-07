@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
+  <defs>
+    <linearGradient id="facetO1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#C084FC" />
+      <stop offset="100%" stop-color="#7B6FE8" />
+    </linearGradient>
+    <linearGradient id="facetO2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#7B6FE8" />
+      <stop offset="100%" stop-color="#4F46E5" />
+    </linearGradient>
+    <linearGradient id="facetO3" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#38BDF8" />
+      <stop offset="100%" stop-color="#0284C7" />
+    </linearGradient>
+    <linearGradient id="facetO4" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#E0E7FF" />
+      <stop offset="100%" stop-color="#A5B4FC" />
+    </linearGradient>
+  </defs>
+
+  <!-- Ambient Glow -->
+  <circle cx="256" cy="256" r="150" fill="#7B6FE8" opacity="0.15" />
+
+  <!-- Origami Wing & Crane Geometry -->
+  <!-- Main Rising Wing -->
+  <polygon points="256,120 400,240 256,290" fill="url(#facetO1)" />
+  <!-- Underwing Fold -->
+  <polygon points="256,290 400,240 330,340" fill="url(#facetO2)" />
+  <!-- Body Core Triangle -->
+  <polygon points="256,120 256,380 200,290" fill="url(#facetO3)" />
+  <!-- Left Wing Flare -->
+  <polygon points="256,120 112,240 200,290" fill="url(#facetO4)" />
+  <!-- Tail Wedge -->
+  <polygon points="200,290 256,380 170,390" fill="url(#facetO2)" opacity="0.85" />
+  <!-- Head / Crown Point -->
+  <polygon points="256,120 280,70 256,86" fill="#FFFFFF" />
+
+  <!-- Radiance Dots -->
+  <circle cx="280" cy="70" r="6" fill="#38BDF8" />
+  <circle cx="400" cy="240" r="6" fill="#C084FC" />
+</svg>

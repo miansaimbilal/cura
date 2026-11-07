@@ -297,3 +297,46 @@ This document records the foundational architectural, technical, and product dec
   - The generated summary is persisted in `conversation_summaries` and compressed into future context windows, allowing conversations to maintain long-term memory without token bloat.
 - **Why it was made:** Prevents unbounded context growth while leveraging robust multi-provider analytics failover without affecting interactive chat latency.
 
+
+---
+
+### Decision 7.1: Rolling 7-Day Inexact Local Calendar Notifications & Quiet Hours Suppression
+
+- **Decision:** Schedule notifications on the client as a rolling 7-day schedule using Expo Notifications' `DailyTriggerInput` / calendar day-and-time triggers. Notifications during user-configured quiet hours are suppressed (omitted from schedule) rather than delayed.
+- **Why it was made:** Avoids requiring `SCHEDULE_EXACT_ALARM` / `USE_EXACT_ALARM` permissions on Android, reducing battery impact and eliminating Google Play policy restrictions. Rolling 7-day scheduling ensures persistent reminders even if the device remains offline or is not opened for days.
+- **Alternatives considered:**
+  - *Daily recurring single alarm:* Prone to cancellation by OS Doze mode or reboot without persistent rescheduling.
+  - *Exact alarms:* Requires special permissions and causes excessive battery drain.
+  - *Delayed delivery after quiet hours:* Creates jarring late-night or early-morning bursts that contradict Cura's calm companion philosophy.
+- **Limitations:** Delivery timing has minor platform-level inexact jitter (+/- 1-5 minutes) managed by the OS.
+
+---
+
+### Decision 7.2: Relational Check-in Occurrences, Cascade Deletion, and Soft-Delete Recovery
+
+- **Decision:** Store check-in occurrences in a dedicated relational SQLite table (`checkin_occurrences`) with exactly seven approved fields: `id`, `user_id`, `checkin_type`, `local_date`, `conversation_id`, `created_at`, `updated_at`. Enforce `FOREIGN KEY (conversation_id) REFERENCES conversations(id) ON DELETE CASCADE` and a unique constraint on `(user_id, checkin_type, local_date)`. If a conversation is soft-deleted, check-in lookup automatically clears `is_deleted = 0` on the conversation rather than creating duplicate occurrences.
+- **Why it was made:** Preserves relational integrity and ensures atomic get-or-create behavior. No separate status column was added, keeping the schema clean and deriving state strictly from conversation presence.
+- **Alternatives considered:**
+  - *Status column ('scheduled', 'triggered', 'completed', 'dismissed'):* Rejected as unapproved schema expansion; check-in completion state is derived from conversation activity.
+  - *Storing check-in metadata in AsyncStorage:* Lacks relational integrity with conversations and cannot enforce atomic constraints.
+- **Limitations:** Conversation deletion cascades to remove occurrence references.
+
+---
+
+### Decision 7.3: Local-First Client Architecture vs Durable Backend Job Queue (Deferred / Non-Implemented Status)
+
+- **Decision:** Check-in scheduling, reconciliation, and daily summary calculations are implemented strictly client-side within the mobile application. A durable backend job queue with a fenced lease worker model was evaluated but is explicitly **NOT implemented**.
+- **Why it was made:** Cura's core product philosophy is offline-first and guest-first. Daily reflections and local reminders must function seamlessly without network access or backend dependencies. Introducing a backend job queue prior to Phase 9 cloud synchronization would violate data minimization and local privacy.
+- **Alternatives considered:**
+  - *Backend Celery/BullMQ job queue:* Evaluated during early planning, but rejected for Phase 7 as unapproved scope expansion that would compromise offline guest operation.
+- **Limitations:** Check-in notifications are device-local and do not sync across multiple devices in Phase 7.
+
+---
+
+### Decision 7.4: Guest Local Summary Isolation and Phase 9 Sync Boundary
+
+- **Decision:** Daily summaries, task throughput, and mood metrics are calculated directly from local SQLite tables (`tasks`, `task_history`, `mood_entries`) under `user_id = 'guest'` for unauthenticated sessions. Remote aggregation and cross-device sync are strictly deferred to Phase 9.
+- **Why it was made:** Guarantees zero latency, complete offline privacy, and deterministic cohort partitioning without server dependencies.
+- **Alternatives considered:**
+  - *Server-side analytics aggregation:* Requires network connectivity and violates guest-first privacy.
+- **Limitations:** Analytics reflect only the current device's local database history until Phase 9 sync.

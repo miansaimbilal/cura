@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
+  <defs>
+    <linearGradient id="ripGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#C084FC" />
+      <stop offset="50%" stop-color="#7B6FE8" />
+      <stop offset="100%" stop-color="#38BDF8" />
+    </linearGradient>
+  </defs>
+
+  <!-- Concentric Harmonic Rings with Varying Thickness & Dash -->
+  <!-- Ring 4 (Outermost) -->
+  <circle cx="256" cy="256" r="180" fill="none" stroke="#7B6FE8" stroke-width="2" opacity="0.25" stroke-dasharray="12 16" />
+  
+  <!-- Ring 3 -->
+  <circle cx="256" cy="256" r="140" fill="none" stroke="url(#ripGrad)" stroke-width="6" opacity="0.5" />
+  <circle cx="396" cy="256" r="8" fill="#38BDF8" />
+  <circle cx="116" cy="256" r="8" fill="#C084FC" />
+
+  <!-- Ring 2 -->
+  <circle cx="256" cy="256" r="95" fill="none" stroke="url(#ripGrad)" stroke-width="12" opacity="0.8" />
+  <circle cx="256" cy="161" r="9" fill="#FFFFFF" />
+
+  <!-- Ring 1 (Inner Resonator) -->
+  <circle cx="256" cy="256" r="50" fill="none" stroke="#FFFFFF" stroke-width="6" />
+
+  <!-- Center Pulse Nucleus -->
+  <circle cx="256" cy="256" r="22" fill="#7B6FE8" />
+  <circle cx="256" cy="256" r="12" fill="#FFFFFF" />
+</svg>

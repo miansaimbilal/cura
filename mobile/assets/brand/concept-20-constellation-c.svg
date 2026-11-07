@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
+  <defs>
+    <linearGradient id="constGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#C084FC" />
+      <stop offset="40%" stop-color="#7B6FE8" />
+      <stop offset="80%" stop-color="#38BDF8" />
+      <stop offset="100%" stop-color="#34D399" />
+    </linearGradient>
+    <filter id="cStarGlow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="8" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+  </defs>
+
+  <!-- Ambient Sky Field -->
+  <circle cx="256" cy="256" r="160" fill="#7B6FE8" opacity="0.12" />
+
+  <!-- Constellation Linking Lines ('C' Shape) -->
+  <polyline points="350,140 256,110 160,180 130,256 160,332 256,402 350,372" 
+            fill="none" stroke="url(#constGrad)" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" />
+
+  <!-- Secondary Cross-Links -->
+  <line x1="256" y1="110" x2="130" y2="256" stroke="#818CF8" stroke-width="2" opacity="0.4" stroke-dasharray="6 6" />
+  <line x1="130" y1="256" x2="256" y2="402" stroke="#38BDF8" stroke-width="2" opacity="0.4" stroke-dasharray="6 6" />
+  <line x1="256" y1="256" x2="130" y2="256" stroke="#FFFFFF" stroke-width="2" opacity="0.3" />
+
+  <!-- Star Nodes -->
+  <circle cx="350" cy="140" r="12" fill="#C084FC" filter="url(#cStarGlow)" />
+  <circle cx="256" cy="110" r="14" fill="#A78BFA" filter="url(#cStarGlow)" />
+  <circle cx="160" cy="180" r="10" fill="#818CF8" />
+  <circle cx="130" cy="256" r="18" fill="#FFFFFF" filter="url(#cStarGlow)" />
+  <circle cx="160" cy="332" r="10" fill="#38BDF8" />
+  <circle cx="256" cy="402" r="14" fill="#38BDF8" filter="url(#cStarGlow)" />
+  <circle cx="350" cy="372" r="12" fill="#34D399" filter="url(#cStarGlow)" />
+
+  <!-- Core Radiant Companion Star inside the 'C' -->
+  <g transform="translate(260, 256)">
+    <path d="M 0,-24 Q 0,0 24,0 Q 0,0 0,24 Q 0,0 -24,0 Q 0,0 0,-24 Z" fill="#FFFFFF" />
+    <circle cx="0" cy="0" r="5" fill="#7B6FE8" />
+  </g>
+</svg>

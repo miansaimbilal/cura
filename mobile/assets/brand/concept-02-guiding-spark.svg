@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
+  <defs>
+    <linearGradient id="facetTop" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#C084FC" />
+      <stop offset="100%" stop-color="#7B6FE8" />
+    </linearGradient>
+    <linearGradient id="facetRight" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#7B6FE8" />
+      <stop offset="100%" stop-color="#38BDF8" />
+    </linearGradient>
+    <linearGradient id="facetBottom" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#38BDF8" />
+      <stop offset="100%" stop-color="#1E1B4B" />
+    </linearGradient>
+    <linearGradient id="facetLeft" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#E0E7FF" />
+      <stop offset="100%" stop-color="#818CF8" />
+    </linearGradient>
+    <radialGradient id="sparkHalo" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#818CF8" stop-opacity="0.4" />
+      <stop offset="100%" stop-color="#818CF8" stop-opacity="0" />
+    </radialGradient>
+  </defs>
+
+  <!-- Ambient Glow -->
+  <circle cx="256" cy="256" r="160" fill="url(#sparkHalo)" />
+
+  <!-- Four Facets creating 3D Geometric Depth -->
+  <!-- North Facet -->
+  <polygon points="256,76 256,256 160,256" fill="url(#facetLeft)" />
+  <polygon points="256,76 352,256 256,256" fill="url(#facetTop)" />
+
+  <!-- East Facet -->
+  <polygon points="436,256 256,256 256,352" fill="url(#facetRight)" />
+  <!-- South Facet -->
+  <polygon points="256,436 256,256 160,256" fill="url(#facetBottom)" />
+  <!-- West Facet -->
+  <polygon points="76,256 256,160 256,256" fill="url(#facetTop)" opacity="0.85" />
+  <polygon points="76,256 256,256 256,352" fill="url(#facetLeft)" />
+
+  <!-- Secondary diagonal accent sparks -->
+  <polygon points="256,200 270,256 256,256" fill="#FFFFFF" opacity="0.7" />
+  <circle cx="256" cy="256" r="12" fill="#FFFFFF" />
+  <circle cx="370" cy="142" r="8" fill="#38BDF8" opacity="0.9" />
+  <circle cx="142" cy="370" r="6" fill="#818CF8" opacity="0.6" />
+</svg>

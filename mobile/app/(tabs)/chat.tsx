@@ -18,6 +18,7 @@ import { useChat } from '../../src/hooks/useChat';
 import { MessageBubble } from '../../src/components/chat/MessageBubble';
 import { ChatInput } from '../../src/components/chat/ChatInput';
 import { ConversationListItem } from '../../src/components/chat/ConversationListItem';
+import { CheckinPreferencesModal } from '../../src/components/checkin/CheckinPreferencesModal';
 
 const PROMPT_SUGGESTIONS = [
   'How did my day go so far?',
@@ -48,6 +49,7 @@ export default function ChatScreen() {
   } = useChat();
 
   const [localInput, setLocalInput] = useState<string | null>(null);
+  const [isCheckinPrefsOpen, setIsCheckinPrefsOpen] = useState(false);
   const activeDraft = activeConversation ? drafts[activeConversation.id] ?? '' : '';
   const inputVal = localInput ?? activeDraft;
   const flatListRef = useRef<FlatList>(null);
@@ -160,6 +162,15 @@ export default function ChatScreen() {
 
           <TouchableOpacity
             activeOpacity={0.7}
+            onPress={() => setIsCheckinPrefsOpen(true)}
+            style={styles.headerAction}
+            accessibilityLabel="Check-in preferences"
+          >
+            <Ionicons name="settings-outline" size={20} color={theme.colors.textMuted} />
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            activeOpacity={0.7}
             onPress={() =>
               Alert.alert('Delete Conversation', 'Delete this entire conversation?', [
                 { text: 'Cancel', style: 'cancel' },
@@ -247,6 +258,12 @@ export default function ChatScreen() {
           isGenerating={isGenerating}
           disabled={isOffline}
         />
+
+        {/* Checkin Preferences Modal */}
+        <CheckinPreferencesModal
+          visible={isCheckinPrefsOpen}
+          onClose={() => setIsCheckinPrefsOpen(false)}
+        />
       </KeyboardAvoidingView>
     );
   }
@@ -266,13 +283,23 @@ export default function ChatScreen() {
           </Text>
         </View>
 
-        <Button
-          title="New Chat"
-          variant="primary"
-          size="sm"
-          onPress={() => createConversation()}
-          style={styles.newChatButton}
-        />
+        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+          <TouchableOpacity
+            activeOpacity={0.7}
+            onPress={() => setIsCheckinPrefsOpen(true)}
+            accessibilityLabel="Check-in preferences"
+            style={{ padding: 8, marginRight: 6 }}
+          >
+            <Ionicons name="settings-outline" size={20} color={theme.colors.textMuted} />
+          </TouchableOpacity>
+          <Button
+            title="New Chat"
+            variant="primary"
+            size="sm"
+            onPress={() => createConversation()}
+            style={styles.newChatButton}
+          />
+        </View>
       </View>
 
       {/* Offline Status Pill */}
@@ -364,6 +391,12 @@ export default function ChatScreen() {
           }
         />
       </View>
+
+      {/* Checkin Preferences Modal */}
+      <CheckinPreferencesModal
+        visible={isCheckinPrefsOpen}
+        onClose={() => setIsCheckinPrefsOpen(false)}
+      />
     </ScreenContainer>
   );
 }

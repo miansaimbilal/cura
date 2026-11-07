@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
+  <defs>
+    <radialGradient id="portalCore" cx="50%" cy="38%" r="55%">
+      <stop offset="0%" stop-color="#FFFFFF" />
+      <stop offset="35%" stop-color="#38BDF8" />
+      <stop offset="70%" stop-color="#7B6FE8" />
+      <stop offset="100%" stop-color="#1E1B4B" />
+    </radialGradient>
+    <linearGradient id="portalFrame" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#C084FC" />
+      <stop offset="50%" stop-color="#7B6FE8" />
+      <stop offset="100%" stop-color="#38BDF8" />
+    </linearGradient>
+  </defs>
+
+  <!-- Outer Protective Octagon / Soft Diamond -->
+  <polygon points="256,60 395,117 452,256 395,395 256,452 117,395 60,256 117,117" 
+           fill="none" stroke="url(#portalFrame)" stroke-width="6" opacity="0.4" />
+
+  <!-- The Keyhole Opening Filled With Inner Universe -->
+  <path d="M 256,120 
+           A 76,76 0 0,1 328,212 
+           L 348,372 
+           L 164,372 
+           L 184,212 
+           A 76,76 0 0,1 256,120 Z" 
+        fill="url(#portalCore)" />
+
+  <!-- Central Insight Spark -->
+  <path d="M 256,165 Q 256,195 286,195 Q 256,195 256,225 Q 256,195 226,195 Q 256,195 256,165 Z" fill="#FFFFFF" />
+  <circle cx="256" cy="310" r="12" fill="#FFFFFF" opacity="0.75" />
+</svg>

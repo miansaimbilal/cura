@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
+  <defs>
+    <linearGradient id="lightCone" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.9" />
+      <stop offset="30%" stop-color="#38BDF8" stop-opacity="0.5" />
+      <stop offset="100%" stop-color="#7B6FE8" stop-opacity="0" />
+    </linearGradient>
+    <linearGradient id="towerGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#C084FC" />
+      <stop offset="50%" stop-color="#7B6FE8" />
+      <stop offset="100%" stop-color="#1E1B4B" />
+    </linearGradient>
+  </defs>
+
+  <!-- Expanded Protective Cone of Comforting Light -->
+  <polygon points="256,180 440,80 440,320" fill="url(#lightCone)" />
+  <polygon points="256,180 72,100 72,300" fill="url(#lightCone)" opacity="0.3" transform="scale(-1, 1) translate(-512, 0)" />
+
+  <!-- The Modernist Minimalist Tower Body -->
+  <polygon points="230,220 282,220 300,410 212,410" fill="url(#towerGrad)" />
+  
+  <!-- Foundation Island Steps -->
+  <rect x="180" y="410" width="152" height="18" rx="9" fill="#25293C" />
+  <rect x="150" y="434" width="212" height="14" rx="7" fill="#151722" />
+
+  <!-- Lantern Room Gallery -->
+  <rect x="220" y="170" width="72" height="50" rx="10" fill="#151722" stroke="#7B6FE8" stroke-width="4" />
+
+  <!-- The Blazing Guiding Lens Spark -->
+  <circle cx="256" cy="195" r="18" fill="#FFFFFF" />
+  <circle cx="256" cy="195" r="32" fill="#38BDF8" opacity="0.35" />
+
+  <!-- Overhead Zenith Star -->
+  <circle cx="256" cy="110" r="8" fill="#FDE047" />
+</svg>

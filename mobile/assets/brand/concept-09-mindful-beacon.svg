@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
+  <defs>
+    <linearGradient id="eyeOutline" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#38BDF8" />
+      <stop offset="50%" stop-color="#7B6FE8" />
+      <stop offset="100%" stop-color="#C084FC" />
+    </linearGradient>
+    <radialGradient id="pupilSun" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#FFFFFF" />
+      <stop offset="40%" stop-color="#818CF8" />
+      <stop offset="80%" stop-color="#4F46E5" />
+      <stop offset="100%" stop-color="#0D0E15" />
+    </radialGradient>
+  </defs>
+
+  <!-- Ambient Ripple Rings -->
+  <circle cx="256" cy="256" r="180" fill="none" stroke="#7B6FE8" stroke-width="1.5" opacity="0.2" />
+  <circle cx="256" cy="256" r="140" fill="none" stroke="#38BDF8" stroke-width="2" opacity="0.3" stroke-dasharray="4 6" />
+
+  <!-- Outer Mindful Contour (Awakening Almond Shape) -->
+  <path d="M 80,256 C 150,140 362,140 432,256 C 362,372 150,372 80,256 Z" 
+        fill="none" 
+        stroke="url(#eyeOutline)" 
+        stroke-width="18" 
+        stroke-linecap="round" />
+
+  <!-- Core Radiant Pupil / Companion Mind -->
+  <circle cx="256" cy="256" r="64" fill="url(#pupilSun)" />
+  
+  <!-- Four-Point Inner Starlight -->
+  <path d="M 256,224 Q 256,256 288,256 Q 256,256 256,288 Q 256,256 224,256 Q 256,256 256,224 Z" 
+        fill="#FFFFFF" />
+</svg>

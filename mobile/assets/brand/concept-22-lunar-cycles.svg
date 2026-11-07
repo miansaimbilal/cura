@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
+  <defs>
+    <linearGradient id="moonGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#E0E7FF" />
+      <stop offset="50%" stop-color="#A5B4FC" />
+      <stop offset="100%" stop-color="#6366F1" />
+    </linearGradient>
+  </defs>
+
+  <!-- Ambient Outer Orbit -->
+  <circle cx="256" cy="256" r="170" fill="none" stroke="#25293C" stroke-width="3" />
+  <circle cx="256" cy="256" r="170" fill="none" stroke="#7B6FE8" stroke-width="3" stroke-dasharray="80 30" opacity="0.6" />
+
+  <!-- Left Crescent Moon -->
+  <path d="M 170,180 A 65,65 0 0,0 170,332 A 50,50 0 0,1 170,180 Z" fill="#7B6FE8" opacity="0.75" />
+
+  <!-- Central Full Glowing Moon -->
+  <circle cx="256" cy="256" r="62" fill="url(#moonGrad)" />
+  <circle cx="236" cy="236" r="50" fill="#FFFFFF" opacity="0.25" />
+
+  <!-- Right Waning Crescent Moon -->
+  <path d="M 342,180 A 50,50 0 0,1 342,332 A 65,65 0 0,0 342,180 Z" fill="#38BDF8" opacity="0.75" />
+
+  <!-- Zenith & Nadir Insight Dots -->
+  <circle cx="256" cy="115" r="7" fill="#FFFFFF" />
+  <circle cx="256" cy="397" r="7" fill="#818CF8" />
+</svg>

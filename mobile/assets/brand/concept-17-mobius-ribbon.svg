@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
+  <defs>
+    <linearGradient id="mob1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#C084FC" />
+      <stop offset="100%" stop-color="#7B6FE8" />
+    </linearGradient>
+    <linearGradient id="mob2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#7B6FE8" />
+      <stop offset="100%" stop-color="#38BDF8" />
+    </linearGradient>
+    <linearGradient id="mob3" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#38BDF8" />
+      <stop offset="100%" stop-color="#1E1B4B" />
+    </linearGradient>
+  </defs>
+
+  <g transform="translate(256,256) rotate(35) translate(-256,-256)">
+    <!-- Back Loop -->
+    <path d="M 160,256 C 160,170 210,130 280,130 C 350,130 380,180 340,240 L 256,256 Z" 
+          fill="url(#mob3)" opacity="0.9" />
+
+    <!-- Forward Twisting Ribbon Face 1 -->
+    <path d="M 340,240 C 300,300 240,380 180,380 C 120,380 120,320 160,256 L 256,256 Z" 
+          fill="url(#mob1)" />
+
+    <!-- Upper Curving Crest Face 2 -->
+    <path d="M 160,256 C 200,192 270,160 340,240 C 320,260 280,270 256,256 Z" 
+          fill="url(#mob2)" />
+  </g>
+
+  <!-- Luminous Heart Spark -->
+  <circle cx="256" cy="256" r="14" fill="#FFFFFF" />
+  <circle cx="256" cy="256" r="26" fill="#FFFFFF" opacity="0.25" />
+</svg>

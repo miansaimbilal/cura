@@ -1,0 +1,1 @@
+Get-PSDrive -PSProvider FileSystem | Select-Object Name, @{Name="FreeGB"; Expression={[math]::Round($_.Free / 1GB, 1)}}, @{Name="UsedGB"; Expression={[math]::Round($_.Used / 1GB, 1)}} | Format-Table -AutoSize

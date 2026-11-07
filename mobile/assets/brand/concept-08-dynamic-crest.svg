@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
+  <defs>
+    <linearGradient id="crestGrad1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#C084FC" />
+      <stop offset="50%" stop-color="#7B6FE8" />
+      <stop offset="100%" stop-color="#38BDF8" />
+    </linearGradient>
+    <linearGradient id="crestGrad2" x1="100%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#38BDF8" />
+      <stop offset="100%" stop-color="#1E1B4B" />
+    </linearGradient>
+    <radialGradient id="pearlGlow" cx="35%" cy="35%" r="65%">
+      <stop offset="0%" stop-color="#FFFFFF" />
+      <stop offset="60%" stop-color="#93C5FD" />
+      <stop offset="100%" stop-color="#6366F1" />
+    </radialGradient>
+  </defs>
+
+  <!-- Outer Dynamic 'C' Curve -->
+  <path d="M 360,110 
+           C 220,50 100,140 100,256 
+           C 100,372 220,462 360,402 
+           C 310,372 270,332 230,282 
+           C 180,222 230,140 360,110 Z" 
+        fill="url(#crestGrad1)" />
+
+  <!-- Inner Complementary Swoop -->
+  <path d="M 330,170 
+           C 240,160 170,200 170,256 
+           C 170,312 240,352 330,342 
+           C 270,312 250,282 250,256 
+           C 250,230 270,200 330,170 Z" 
+        fill="url(#crestGrad2)" 
+        opacity="0.8" />
+
+  <!-- Luminous Inner Pearl / AI Spark -->
+  <circle cx="310" cy="256" r="30" fill="url(#pearlGlow)" />
+  <circle cx="302" cy="248" r="8" fill="#FFFFFF" />
+</svg>

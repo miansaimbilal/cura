@@ -5,10 +5,12 @@ import { tasks } from '../../db/schema/tasks';
 import { moodEntries } from '../../db/schema/moodEntries';
 import { conversationSummaries } from '../../db/schema/conversationSummaries';
 import type { AIMessage } from '../ai/types';
+import { isValidCalendarDate } from './chat.schema';
 
 export interface ChatContextOptions {
   userId: string;
   conversationId: string;
+  clientLocalDate?: string;
 }
 
 export class ChatContextBuilder {
@@ -52,7 +54,7 @@ Core principles you must follow at all times:
 
     // 3. User Task Context (if permitted)
     if (includeTasks) {
-      const taskContext = await this.getTaskContext(userId);
+      const taskContext = await this.getTaskContext(userId, options.clientLocalDate);
       if (taskContext) {
         sections.push(`\n[PERMITTED USER TASK CONTEXT]\n${taskContext}`);
       }
@@ -94,9 +96,13 @@ Core principles you must follow at all times:
     };
   }
 
-  private async getTaskContext(userId: string): Promise<string | null> {
+  private async getTaskContext(userId: string, clientLocalDate?: string): Promise<string | null> {
     try {
-      const todayStr = new Date().toISOString().split('T')[0];
+      // Use validated clientLocalDate from client; fallback to documented UTC if absent
+      const todayStr =
+        clientLocalDate && isValidCalendarDate(clientLocalDate)
+          ? clientLocalDate
+          : new Date().toISOString().split('T')[0];
 
       // Query active tasks for today or overdue
       const userTasks = await db

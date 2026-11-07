@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
+  <defs>
+    <linearGradient id="pFace1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#C084FC" />
+      <stop offset="100%" stop-color="#7B6FE8" />
+    </linearGradient>
+    <linearGradient id="pFace2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#38BDF8" />
+      <stop offset="100%" stop-color="#0284C7" />
+    </linearGradient>
+    <linearGradient id="pFace3" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#34D399" />
+      <stop offset="100%" stop-color="#059669" />
+    </linearGradient>
+    <linearGradient id="pFace4" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FBBF24" />
+      <stop offset="100%" stop-color="#EA580C" />
+    </linearGradient>
+    <filter id="prismGlow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="20" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+  </defs>
+
+  <!-- Ambient Prism Glow -->
+  <circle cx="256" cy="256" r="150" fill="#7B6FE8" opacity="0.2" filter="url(#prismGlow)" />
+
+  <!-- Hexagonal Faceted Crystal Structure -->
+  <!-- Top Left Facet (Violet - Mindfulness) -->
+  <polygon points="256,90 130,170 256,256" fill="url(#pFace1)" />
+
+  <!-- Top Right Facet (Cyan - Calm) -->
+  <polygon points="256,90 382,170 256,256" fill="url(#pFace2)" />
+
+  <!-- Bottom Left Facet (Emerald - Renewal) -->
+  <polygon points="130,170 256,422 256,256" fill="url(#pFace3)" />
+
+  <!-- Bottom Right Facet (Amber - Energy/Uplift) -->
+  <polygon points="382,170 256,422 256,256" fill="url(#pFace4)" />
+
+  <!-- Inner Refraction Lines -->
+  <line x1="256" y1="90" x2="256" y2="422" stroke="#FFFFFF" stroke-width="3" opacity="0.6" />
+  <line x1="130" y1="170" x2="382" y2="170" stroke="#FFFFFF" stroke-width="2" opacity="0.4" />
+  
+  <!-- Central Focus Node -->
+  <circle cx="256" cy="256" r="10" fill="#FFFFFF" />
+  <circle cx="256" cy="256" r="20" fill="#FFFFFF" opacity="0.2" />
+</svg>

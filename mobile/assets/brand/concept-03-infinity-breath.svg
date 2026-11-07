@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
+  <defs>
+    <linearGradient id="infGrad1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#38BDF8" />
+      <stop offset="45%" stop-color="#7B6FE8" />
+      <stop offset="100%" stop-color="#F472B6" />
+    </linearGradient>
+    <linearGradient id="infGrad2" x1="100%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#F472B6" />
+      <stop offset="50%" stop-color="#818CF8" />
+      <stop offset="100%" stop-color="#38BDF8" />
+    </linearGradient>
+    <filter id="glow3" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="14" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+  </defs>
+
+  <!-- Ambient Glow Behind Intersection -->
+  <circle cx="256" cy="256" r="100" fill="#7B6FE8" opacity="0.15" />
+
+  <!-- Smooth Infinity Path -->
+  <!-- Left Loop -->
+  <path d="M 256,256 
+           C 200,180 130,170 85,210 
+           C 40,250 40,320 90,355 
+           C 140,390 205,330 256,256 
+           C 307,182 372,122 422,157 
+           C 472,192 472,262 427,302 
+           C 382,342 312,332 256,256 Z" 
+        fill="none" 
+        stroke="url(#infGrad1)" 
+        stroke-width="36" 
+        stroke-linecap="round" 
+        stroke-linejoin="round"
+        filter="url(#glow3)" />
+
+  <!-- Glowing focal core node -->
+  <circle cx="256" cy="256" r="14" fill="#FFFFFF" />
+  <circle cx="256" cy="256" r="24" fill="#FFFFFF" opacity="0.25" />
+</svg>

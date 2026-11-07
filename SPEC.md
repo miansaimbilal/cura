@@ -1605,29 +1605,33 @@ Acceptance criteria:
 
 Stop after Phase 6.
 
-## PHASE 7 — CHECK-INS AND BACKGROUND AI
+## PHASE 7 — CHECK-INS AND BACKGROUND AI (Phase 7 — Completed with Documented Limitations)
 
 Read:
 Sections 8, 9, 10, 11, and 16.
 
-Goals:
-- Morning check-ins.
-- Evening check-ins.
-- Notification-to-conversation navigation.
-- Daily summaries.
-- Mood analysis.
-- Task insights.
-- Accomplishment appreciation.
-- Background AI failover.
-- Scheduled jobs.
+Implemented Capabilities:
+- Morning check-in and evening reflection scheduling with user-configurable preferences.
+- 7-day rolling inexact calendar notifications via Expo Notifications in native Android package.
+- Notification tap navigation directly into dedicated reflection conversation.
+- Relational check-in occurrences schema (`checkin_occurrences`) with `ON DELETE CASCADE` and soft-delete recovery.
+- Daily summary analytics cohorts (timed tasks partitioned by `due_date`, untimed by local creation date, daily throughput from `task_history`).
+- Multi-trigger notification reconciliation manager (cold launch, foreground resume, preferences change, permissions change, midnight rollover, timezone change).
+- Client local date context propagation to backend AI chat context.
 
-Acceptance criteria:
-- Check-ins respect user settings.
-- Correct conversations open from notifications.
-- Background jobs do not create duplicates.
-- Summaries use stored records.
-- AI insights are labelled correctly.
-- Tests pass.
+Acceptance criteria verified:
+- Check-ins respect user settings (preferences modal, quiet hours suppression).
+- Correct conversations open from notifications without crashing or duplication.
+- Background jobs do not create duplicates (idempotent get-or-create).
+- Summaries use stored records (`tasks`, `task_history`, and `mood_entries`).
+- AI insights and context use user-bounded data and client local date.
+- Tests pass (122/122 mobile tests, 158/158 backend tests, 20/20 Expo Doctor checks).
+
+Documented Limitations & Scope Boundaries:
+- Live production JavaScript SQLite connection's `PRAGMA foreign_keys` setting has not been independently interrogated at runtime (verified structurally and via isolated test database and native CLI).
+- Notification handling has repository-level idempotency and tested in-memory duplicate-tap protection, with device-level verification limited by Android's auto-dismissal of shade notifications on tap.
+- Cloud synchronization remains incomplete and is not part of Phase 7 completion; Phase 7 is strictly local-first.
+
 
 Stop after Phase 7.
 

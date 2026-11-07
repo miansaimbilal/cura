@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
+  <defs>
+    <linearGradient id="monoPill1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#C084FC" />
+      <stop offset="100%" stop-color="#7B6FE8" />
+    </linearGradient>
+    <linearGradient id="monoPill2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#38BDF8" />
+      <stop offset="100%" stop-color="#0284C7" />
+    </linearGradient>
+    <radialGradient id="monoOrb" cx="35%" cy="35%" r="65%">
+      <stop offset="0%" stop-color="#FFFFFF" />
+      <stop offset="60%" stop-color="#34D399" />
+      <stop offset="100%" stop-color="#059669" />
+    </radialGradient>
+  </defs>
+
+  <!-- Ambient Minimal Glow -->
+  <circle cx="256" cy="256" r="160" fill="#7B6FE8" opacity="0.1" />
+
+  <!-- Top Horizontal Rounded Pill Bar -->
+  <rect x="130" y="110" width="220" height="56" rx="28" fill="url(#monoPill1)" />
+
+  <!-- Left Vertical Spine Pill -->
+  <rect x="130" y="110" width="56" height="292" rx="28" fill="#7B6FE8" />
+
+  <!-- Bottom Horizontal Rounded Pill Bar -->
+  <rect x="130" y="346" width="220" height="56" rx="28" fill="url(#monoPill2)" />
+
+  <!-- Floating Intelligent Companion Sphere inside the Monolithic 'C' -->
+  <circle cx="310" cy="256" r="48" fill="url(#monoOrb)" />
+  <circle cx="295" cy="240" r="14" fill="#FFFFFF" opacity="0.9" />
+</svg>

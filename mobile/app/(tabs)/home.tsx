@@ -19,6 +19,7 @@ import { MoodLogModal } from '../../src/components/mood/MoodLogModal';
 import { TaskProgressRing } from '../../src/components/charts/TaskProgressRing';
 import { formatDisplayTime } from '../../src/utils/date';
 import { CreateTaskInput } from '../../src/types/task';
+import { CheckinPreferencesModal } from '../../src/components/checkin/CheckinPreferencesModal';
 
 export default function HomeScreen() {
   const { theme, themeMode, setThemeMode, isDark } = useTheme();
@@ -29,6 +30,7 @@ export default function HomeScreen() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isTaskFormOpen, setIsTaskFormOpen] = useState(false);
   const [isMoodModalOpen, setIsMoodModalOpen] = useState(false);
+  const [isCheckinPrefsOpen, setIsCheckinPrefsOpen] = useState(false);
   const [moodModalPreset, setMoodModalPreset] = useState<MoodType>('calm');
 
   const toggleTheme = () => {
@@ -106,6 +108,14 @@ export default function HomeScreen() {
               Daily reflection &amp; calm guidance
             </Text>
           </View>
+          <TouchableOpacity
+            activeOpacity={0.7}
+            onPress={() => setIsCheckinPrefsOpen(true)}
+            accessibilityLabel="Check-in preferences"
+            style={{ padding: 4 }}
+          >
+            <Ionicons name="settings-outline" size={18} color={theme.colors.textMuted} />
+          </TouchableOpacity>
         </View>
         <Text variant="body" style={styles.companionQuote}>
           {'"Take a deep breath. Today is a fresh opportunity to move at your own pace without pressure."'}
@@ -281,6 +291,12 @@ export default function HomeScreen() {
           await createMood(d as CreateMoodInput);
         }}
         initialMood={moodModalPreset}
+      />
+
+      {/* Check-in Preferences Modal */}
+      <CheckinPreferencesModal
+        visible={isCheckinPrefsOpen}
+        onClose={() => setIsCheckinPrefsOpen(false)}
       />
     </ScreenContainer>
   );

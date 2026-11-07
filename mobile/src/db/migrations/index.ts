@@ -208,6 +208,29 @@ export const migrations: Migration[] = [
       `);
     },
   },
+  {
+    version: 5,
+    name: '0005_checkin_occurrences',
+    up: async (db: IDatabase) => {
+      // 1. Create checkin_occurrences table for persistent, idempotent check-in occurrence tracking
+      await db.execAsync(`
+        CREATE TABLE IF NOT EXISTS checkin_occurrences (
+          id TEXT PRIMARY KEY NOT NULL,
+          user_id TEXT NOT NULL DEFAULT 'guest',
+          checkin_type TEXT NOT NULL,
+          local_date TEXT NOT NULL,
+          conversation_id TEXT NOT NULL,
+          created_at TEXT NOT NULL,
+          updated_at TEXT NOT NULL,
+          FOREIGN KEY (conversation_id) REFERENCES conversations(id) ON DELETE CASCADE,
+          UNIQUE (user_id, checkin_type, local_date)
+        );
+
+        CREATE INDEX IF NOT EXISTS idx_checkin_occurrences_conversation_id ON checkin_occurrences(conversation_id);
+        CREATE INDEX IF NOT EXISTS idx_checkin_occurrences_user_date ON checkin_occurrences(user_id, local_date);
+      `);
+    },
+  },
 ];
 
 /**

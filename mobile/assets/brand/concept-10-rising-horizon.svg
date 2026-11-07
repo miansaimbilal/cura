@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
+  <defs>
+    <linearGradient id="sunGrad" x1="0%" y1="100%" x2="0%" y2="0%">
+      <stop offset="0%" stop-color="#FB923C" />
+      <stop offset="50%" stop-color="#FBBF24" />
+      <stop offset="100%" stop-color="#FDE047" />
+    </linearGradient>
+    <linearGradient id="wave1" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#38BDF8" />
+      <stop offset="100%" stop-color="#7B6FE8" />
+    </linearGradient>
+    <linearGradient id="wave2" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#7B6FE8" />
+      <stop offset="100%" stop-color="#4F46E5" />
+    </linearGradient>
+    <radialGradient id="morningHalo" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#FDE047" stop-opacity="0.35" />
+      <stop offset="60%" stop-color="#FB923C" stop-opacity="0.1" />
+      <stop offset="100%" stop-color="#0D0E15" stop-opacity="0" />
+    </radialGradient>
+  </defs>
+
+  <!-- Ambient Morning Glow -->
+  <circle cx="256" cy="240" r="160" fill="url(#morningHalo)" />
+
+  <!-- Rising Mindful Sun Semicircle -->
+  <path d="M 140,270 A 116,116 0 0,1 372,270 Z" fill="url(#sunGrad)" />
+
+  <!-- Sun Rays Arc -->
+  <circle cx="256" cy="270" r="145" fill="none" stroke="#FDE047" stroke-width="3" stroke-dasharray="10 14" opacity="0.6" />
+
+  <!-- Horizon Wave 1 (Midground) -->
+  <path d="M 96,280 C 160,255 210,305 280,275 C 340,250 380,285 416,280" 
+        fill="none" stroke="url(#wave1)" stroke-width="18" stroke-linecap="round" />
+
+  <!-- Horizon Wave 2 (Foreground) -->
+  <path d="M 120,335 C 180,310 240,360 310,330 C 360,310 380,335 392,335" 
+        fill="none" stroke="url(#wave2)" stroke-width="14" stroke-linecap="round" opacity="0.8" />
+
+  <!-- Companion Spark in the Dawn Sky -->
+  <circle cx="256" cy="180" r="10" fill="#FFFFFF" />
+  <circle cx="256" cy="180" r="18" fill="#FFFFFF" opacity="0.3" />
+</svg>

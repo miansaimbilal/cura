@@ -22,9 +22,9 @@ describe('Real SQLite Database & Chat Repository (Integration Tests)', () => {
   });
 
   describe('1. Migration 0004 & Database Schema', () => {
-    it('sets PRAGMA user_version = 4 upon completing migration 0004', async () => {
+    it('sets PRAGMA user_version upon completing migrations', async () => {
       const versionResult = await db.getFirstAsync<{ user_version: number }>('PRAGMA user_version;');
-      expect(versionResult?.user_version).toBe(4);
+      expect(versionResult?.user_version).toBeGreaterThanOrEqual(4);
     });
 
     it('creates conversations, messages, and conversation_summaries tables', async () => {

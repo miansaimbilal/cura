@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cura — 30 Logo Design Concepts</title>
+  <style>
+    :root {
+      --bg: #0D0E15;
+      --surface: #151722;
+      --surface-elevated: #1D202F;
+      --text-primary: #F1F3F9;
+      --text-secondary: #A0A7BD;
+      --text-muted: #687087;
+      --accent: #7B6FE8;
+      --accent-subtle: rgba(123, 111, 232, 0.15);
+      --secondary: #9D93F3;
+      --border: #25293C;
+      --cyan: #38BDF8;
+      --emerald: #34D399;
+      --amber: #FBBF24;
+    }
+    body.light-theme {
+      --bg: #F8F9FC;
+      --surface: #FFFFFF;
+      --surface-elevated: #F1F3F8;
+      --text-primary: #141620;
+      --text-secondary: #545C72;
+      --text-muted: #8D96AE;
+      --border: #E3E6F0;
+      --accent-subtle: #EEECFC;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background-color: var(--bg);
+      color: var(--text-primary);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      padding: 40px 24px;
+      line-height: 1.5;
+      transition: background-color 0.25s ease, color 0.25s ease;
+    }
+    .container {
+      max-width: 1380px;
+      margin: 0 auto;
+    }
+    header {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+    .badge {
+      display: inline-block;
+      padding: 6px 16px;
+      background: var(--accent-subtle);
+      color: var(--secondary);
+      border-radius: 9999px;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.8px;
+      margin-bottom: 14px;
+      border: 1px solid rgba(123, 111, 232, 0.3);
+    }
+    h1 {
+      font-size: 44px;
+      font-weight: 800;
+      letter-spacing: -1.2px;
+      margin-bottom: 12px;
+    }
+    p.lead {
+      font-size: 17px;
+      color: var(--text-secondary);
+      max-width: 800px;
+      margin: 0 auto 24px auto;
+    }
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 40px;
+    }
+    .btn-toggle {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text-primary);
+      padding: 10px 20px;
+      border-radius: 12px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s ease;
+    }
+    .btn-toggle:hover {
+      border-color: var(--accent);
+      transform: translateY(-1px);
+    }
+    .filter-btn {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text-secondary);
+      padding: 8px 16px;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .filter-btn.active, .filter-btn:hover {
+      background: var(--accent-subtle);
+      color: var(--secondary);
+      border-color: var(--accent);
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
+      gap: 24px;
+    }
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 22px;
+      padding: 22px;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+    .card:hover {
+      transform: translateY(-4px);
+      border-color: rgba(123, 111, 232, 0.6);
+      box-shadow: 0 16px 32px rgba(0, 0, 0, 0.22);
+    }
+    .card-num {
+      position: absolute;
+      top: 18px;
+      left: 18px;
+      background: var(--surface-elevated);
+      color: var(--secondary);
+      font-size: 11px;
+      font-weight: 800;
+      padding: 4px 8px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      letter-spacing: 0.5px;
+    }
+    .preview-stage {
+      width: 100%;
+      height: 200px;
+      margin: 18px 0 14px 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--surface-elevated);
+      border-radius: 16px;
+      border: 1px solid var(--border);
+      overflow: hidden;
+      position: relative;
+    }
+    .squircle-preview {
+      width: 120px;
+      height: 120px;
+      border-radius: 28px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 14px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+    }
+    .squircle-preview img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+    .card-title {
+      font-size: 19px;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+    .card-metaphor {
+      font-size: 12px;
+      color: var(--cyan);
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      margin-bottom: 8px;
+    }
+    .card-desc {
+      font-size: 13.5px;
+      color: var(--text-secondary);
+      line-height: 1.45;
+      margin-bottom: 14px;
+      flex-grow: 1;
+    }
+    .file-ref {
+      font-family: monospace;
+      font-size: 11px;
+      color: var(--text-muted);
+      background: var(--surface-elevated);
+      padding: 5px 8px;
+      border-radius: 6px;
+      display: inline-block;
+      border: 1px solid var(--border);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="badge">CURA MASTER BRAND SUITE</div>
+      <h1>30 Distinct Logo Concepts</h1>
+      <p class="lead">Explore 30 diverse visual identities crafted for the Cura AI companion, mood tracker, and daily habit flow. Toggle between dark and light themes to test versatility, then pick your favorite.</p>
+      
+      <div class="controls">
+        <button class="btn-toggle" onclick="toggleTheme()">
+          <span id="themeIcon">☀️</span> <span id="themeLabel">Switch to Light Background</span>
+        </button>
+      </div>
+    </header>
+
+    <div class="grid">
+      <!-- 01 -->
+      <div class="card">
+        <div class="card-num">#01</div>
+        <div class="preview-stage"><div class="squircle-preview"><img src="./concept-01-sanctuary-orb.svg" alt="Sanctuary Orb" /></div></div>
+        <div class="card-metaphor">Mindfulness • Breathing • Harmony</div>
+        <div class="card-title">The Sanctuary Orb</div>
+        <div class="card-desc">Concentric radiant sphere with layered aura ripples. Minimal, serene, and calming.</div>
+        <div class="file-ref">concept-01-sanctuary-orb.svg</div>
+      </div>
+
+      <!-- 02 -->
+      <div class="card">
+        <div class="card-num">#02</div>
+        <div class="preview-stage"><div class="squircle-preview"><img src="./concept-02-guiding-spark.svg" alt="Guiding Spark" /></div></div>
+        <div class="card-metaphor">AI Intelligence • Direction • Clarity</div>
+        <div class="card-title">The Guiding Spark</div>
+        <div class="card-desc">Faceted 4-point diamond star with precision light bevels. An intelligent companion guiding like a north star.</div>
+        <div class="file-ref">concept-02-guiding-spark.svg</div>
+      </div>
+
+      <!-- 03 -->
+      <div class="card">
+        <div class="card-num">#03</div>
+        <div class="preview-stage"><div class="squircle-preview"><img src="./concept-03-infinity-breath.svg" alt="Infinity Breath" /></div></div>
+        <div class="card-metaphor">Flow • Habits • Resilience</div>
+        <div class="card-title">The Infinity Breath</div>
+        <div class="card-desc">Continuous monoline ribbon seamlessly weaving an infinity loop with an inhale/exhale wave.</div>
+        <div class="file-ref">concept-03-infinity-breath.svg</div>
+      </div>
+
+      <!-- 04 -->
+      <div class="card">
+        <div class="card-num">#04</div>
+        <div class="preview-stage"><div class="squircle-preview"><img src="./concept-04-blooming-lotus.svg" alt="Mindful Bloom" /></div></div>
+        <div class="card-metaphor">Organic Wellness • Renewal • Growth</div>
+        <div class="card-title">The Mindful Bloom</div>
+        <div class="card-desc">Geometric lotus petals gracefully unfolding toward an ascending pearl. Merges wellness with tech clarity.</div>
+        <div class="file-ref">concept-04-blooming-lotus.svg</div>
+      </div>
+
+      <!-- 05 -->
+      <div class="card">
+        <div class="card-num">#05</div>
+        <div class="preview-stage"><div class="squircle-preview"><img src="./concept-05-dual-harmony.svg" alt="Dual Harmony" /></div></div>
+        <div class="card-metaphor">Connection • Support • Balance</div>
+        <div class="card-title">The Dual Harmony</div>
+        <div class="card-desc">Two interlocking orbital rings (cyan for user, violet for AI) meeting at an insight focal node.</div>
+        <div class="file-ref">concept-05-dual-harmony.svg</div>
+      </div>
+
+      <!-- 06 -->
+      <div class="card">
+        <div class="card-num">#06</div>
+        <div class="preview-stage"><div class="squircle-preview"><img src="./concept-06-haven-arch.svg" alt="Haven Portal" /></div></div>
+        <div class="card-metaphor">Sanctuary • Reflection • Peace</div>
+        <div class="card-title">The Haven Portal</div>
+        <div class="card-desc">A modern rounded architectural arch framing a warm rising sun core. A calm doorway away from daily noise.</div>
+        <div class="file-ref">concept-06-haven-arch.svg</div>
+      </div>
+
+      <!-- 07 -->
+      <div class="card">
+        <div class="card-num">#07</div>
+        <div class="preview-stage"><div class="squircle-preview"><img src="./concept-07-spectrum-prism.svg" alt="Emotion Spectrum" /></div></div>
+        <div class="card-metaphor">Mood Analytics • Insights • Facets</div>
+        <div class="card-title">The Emotion Spectrum</div>
+        <div class="card-desc">Hexagonal crystal prism reflecting the four emotional spectrum shades (calm, clarity, energy, renewal).</div>
+        <div class="file-ref">concept-07-spectrum-prism.svg</div>
+      </div>
+
+      <!-- 08 -->
+      <div class="card">
+        <div class="card-num">#08</div>
+        <div class="preview-stage"><div class="squircle-preview"><img src="./concept-08-dynamic-crest.svg" alt="Dynamic Crest" /></div></div>
+        <div class="card-metaphor">Typographic 'C' • Care • Precision</div>
+        <div class="card-title">The Dynamic Crest</div>
+        <div class="card-desc">Aerodynamic typographic 'C' swoops safeguarding a luminous inner core. Bold and striking.</div>
+        <div class="file-ref">concept-08-dynamic-crest.svg</div>
+      </div>
+
+      <!-- 09 -->
+      <div class="card">
+        <div class="card-num">#09</div>
+        <div class="preview-stage"><div class="squircle-preview"><img src="./concept-09-mindful-beacon.svg" alt="Mindful Beacon" /></div></div>
+        <div class="card-metaphor">Awareness • Check-ins • Presence</div>
+        <div class="card-title">The Mindful Beacon</div>
+        <div class="card-desc">Concentric ripples radiating outward from an awakening pupil star. Cues presence and daily check-ins.</div>
+        <div class="file-ref">concept-09-mindful-beacon.svg</div>
+      </div>
+
+      <!-- 10 -->
+      <div class="card">
+        <div class="card-num">#10</div>
+        <div class="preview-stage"><div class="squircle-preview"><img src="./concept-10-rising-horizon.svg" alt="Dawn Horizon" /></div></div>
+        <div class="card-metaphor">Daily Renewal • Progress • Optimism</div>
+        <div class="card-title">The Dawn Horizon</div>
+        <div class="card-desc">Warm morning sun rising over peaceful horizon waves with an overhead companion star.</div>
+        <div class="file-ref">concept-10-rising-horizon.svg</div>
+      </div>
+
+      <!-- 11 -->
+      <div class="card">
+        <div class="card-num">#11</div>
+        <div class="preview-stage"><div class="squircle-preview"><img src="./concept-11-zen-stones.svg" alt="Zen Stones" /></div></div>
+        <div class="card-metaphor">Balance • Grounding • Equilibrium</div>
+        <div class="card-title">The Zen Stone Stack</div>
+        <div class="card-desc">Three smooth balanced pebbles crowned by a zenith spark. Represents stability and composure.</div>
+        <div class="file-ref">concept-11-zen-stones.svg</div>
+      </div>
+
+      <!-- 12 -->
+      <div class="card">
+        <div class="card-num">#12</div>
+        <div class="preview-stage"><div class="squircle-preview"><img src="./concept-12-neural-petal.svg" alt="Neural Petal" /></div></div>
+        <div class="card-metaphor">AI Synapses • Nature • Intelligence</div>
+        <div class="card-title">The Neural Petal</div>
+        <div class="card-desc">Interconnected botanical leaf veins forming a gentle neural network with radiant synaptic nodes.</div>
+        <div class="file-ref">concept-12-neural-petal.svg</div>
+      </div>
+
+      <!-- 13 -->
+      <div class="card">
+        <div class="card-num">#13</div>
+        <div class="preview-stage"><div class="squircle-preview"><img src="./concept-13-origami-crane.svg" alt="Origami Crane" /></div></div>
+        <div class="card-metaphor">Elevation • Hope • Peace</div>
+        <div class="card-title">The Origami Wing</div>
+        <div class="card-desc">Geometric folded facet origami wing ascending upward. Symbolic of hope and gentle uplifting guidance.</div>
+        <div class="file-ref">concept-13-origami-crane.svg</div>
+      </div>
+
+      <!-- 14 -->
+      <div class="card">
+        <div class="card-num">#14</div>
+        <div class="preview-stage"><div class="squircle-preview"><img src="./concept-14-hourglass-bloom.svg" alt="Hourglass Bloom" /></div></div>
+        <div class="card-metaphor">Time Mastery • Daily Rhythm • Present</div>
+        <div class="card-title">The Hourglass Bloom</div>
+        <div class="card-desc">Two curving petals meeting at a focal spark at the waist, transforming time management into self-care.</div>
+        <div class="file-ref">concept-14-hourglass-bloom.svg</div>
+      </div>
+
+      <!-- 15 -->
+      <div class="card">
+        <div class="card-num">#15</div>
+        <div class="preview-stage"><div class="squircle-preview"><img src="./concept-15-pulsing-ripple.svg" alt="Pulsing Ripple" /></div></div>
+        <div class="card-metaphor">Resonance • Emotional Frequency</div>
+        <div class="card-title">The Pulsing Ripple</div>
+        <div class="card-desc">Clean harmonic resonance rings radiating outward from a central nucleus, reflecting mood soundwaves.</div>
+        <div class="file-ref">concept-15-pulsing-ripple.svg</div>
+      </div>
+
+      <!-- 16 -->
+      <div class="card">
+        <div class="card-num">#16</div>
+        <div class="preview-stage"><div class="squircle-preview"><img src="./concept-16-shield-of-calm.svg" alt="Shield of Calm" /></div></div>
+        <div class="card-metaphor">Emotional Safety • Protection • Calm</div>
+        <div class="card-title">The Shield of Calm</div>
+        <div class="card-desc">Softly rounded Reuleaux shield safeguarding a serene inner teardrop. Emotional protection and privacy.</div>
+        <div class="file-ref">concept-16-shield-of-calm.svg</div>
+      </div>
+
+      <!-- 17 -->
+      <div class="card">
+        <div class="card-num">#17</div>
+        <div class="preview-stage"><div class="squircle-preview"><img src="./concept-17-mobius-ribbon.svg" alt="Mobius Ribbon" /></div></div>
+        <div class="card-metaphor">Continuous Growth • Introspection</div>
+        <div class="card-title">The Mobius Ribbon</div>
+        <div class="card-desc">3D twisting Mobius strip in iridescent violet and cyan, signifying unbroken self-reflection.</div>
+        <div class="file-ref">concept-17-mobius-ribbon.svg</div>
+      </div>
+
+      <!-- 18 -->
+      <div class="card">
+        <div class="card-num">#18</div>
+        <div class="preview-stage"><div class="squircle-preview"><img src="./concept-18-northern-light.svg" alt="Northern Light" /></div></div>
+        <div class="card-metaphor">Serenity • Night Sky • Solitude</div>
+        <div class="card-title">The Aurora Sky</div>
+        <div class="card-desc">Luminous aurora borealis curtain dancing across twilight mountains with a solitary guiding star.</div>
+        <div class="file-ref">concept-18-northern-light.svg</div>
+      </div>
+
+      <!-- 19 -->
+      <div class="card">
+        <div class="card-num">#19</div>
+        <div class="preview-stage"><div class="squircle-preview"><img src="./concept-19-keyhole-portal.svg" alt="Keyhole Portal" /></div></div>
+        <div class="card-metaphor">Self-Discovery • Deep Journaling</div>
+        <div class="card-title">The Keyhole Portal</div>
+        <div class="card-desc">Minimalist keyhole opening revealing a glowing inner cosmos, representing unlocking your inner thoughts.</div>
+        <div class="file-ref">concept-19-keyhole-portal.svg</div>
+      </div>
+
+      <!-- 20 -->
+      <div class="card">
+        <div class="card-num">#20</div>
+        <div class="preview-stage"><div class="squircle-preview"><img src="./concept-20-constellation-c.svg" alt="Constellation C" /></div></div>
+        <div class="card-metaphor">Cosmic Connection • Star Map</div>
+        <div class="card-title">The 'C' Constellation</div>
+        <div class="card-desc">Seven interconnected stellar nodes tracing the letter 'C' around an inner companion spark.</div>
+        <div class="file-ref">concept-20-constellation-c.svg</div>
+      </div>
+
+      <!-- 21 -->
+      <div class="card">
+        <div class="card-num">#21</div>
+        <div class="preview-stage"><div class="squircle-preview"><img src="./concept-21-dewdrop-clarity.svg" alt="Dewdrop Clarity" /></div></div>
+        <div class="card-metaphor">Clarity • Purity • Morning Start</div>
+        <div class="card-title">The Dewdrop Clarity</div>
+        <div class="card-desc">A pure, luminous morning water droplet resting on a gentle stem arc. Pristine simplicity.</div>
+        <div class="file-ref">concept-21-dewdrop-clarity.svg</div>
+      </div>
+
+      <!-- 22 -->
+      <div class="card">
+        <div class="card-num">#22</div>
+        <div class="preview-stage"><div class="squircle-preview"><img src="./concept-22-lunar-cycles.svg" alt="Lunar Cycles" /></div></div>
+        <div class="card-metaphor">Mood Rhythm • Natural Phases</div>
+        <div class="card-title">The Lunar Cycles</div>
+        <div class="card-desc">Harmonic waxing, full, and waning moon phases aligned within an orbital ring. Reflects emotional cycles.</div>
+        <div class="file-ref">concept-22-lunar-cycles.svg</div>
+      </div>
+
+      <!-- 23 -->
+      <div class="card">
+        <div class="card-num">#23</div>
+        <div class="preview-stage"><div class="squircle-preview"><img src="./concept-23-yin-yang-flow.svg" alt="Yin Yang Flow" /></div></div>
+        <div class="card-metaphor">Equanimity • Mindful Balance</div>
+        <div class="card-title">The Yin-Yang Flow</div>
+        <div class="card-desc">Modern biomorphic flow between calm violet and clarity cyan, balancing introspection with action.</div>
+        <div class="file-ref">concept-23-yin-yang-flow.svg</div>
+      </div>
+
+      <!-- 24 -->
+      <div class="card">
+        <div class="card-num">#24</div>
+        <div class="preview-stage"><div class="squircle-preview"><img src="./concept-24-golden-spiral.svg" alt="Golden Spiral" /></div></div>
+        <div class="card-metaphor">Natural Harmony • Fibonacci Focus</div>
+        <div class="card-title">The Golden Spiral</div>
+        <div class="card-desc">Logarithmic Fibonacci spiral curling inward toward a brilliant core star. Deep focus and mental alignment.</div>
+        <div class="file-ref">concept-24-golden-spiral.svg</div>
+      </div>
+
+      <!-- 25 -->
+      <div class="card">
+        <div class="card-num">#25</div>
+        <div class="preview-stage"><div class="squircle-preview"><img src="./concept-25-gentle-embrace.svg" alt="Gentle Embrace" /></div></div>
+        <div class="card-metaphor">Care • Empathy • Attentive Companion</div>
+        <div class="card-title">The Gentle Embrace</div>
+        <div class="card-desc">Two curved protective wings cupping a glowing companion heart-spark. Unconditional warmth and care.</div>
+        <div class="file-ref">concept-25-gentle-embrace.svg</div>
+      </div>
+
+      <!-- 26 -->
+      <div class="card">
+        <div class="card-num">#26</div>
+        <div class="preview-stage"><div class="squircle-preview"><img src="./concept-26-lighthouse-beam.svg" alt="Lighthouse Beam" /></div></div>
+        <div class="card-metaphor">Guiding Light • Overcoming Dark</div>
+        <div class="card-title">The Lighthouse Beam</div>
+        <div class="card-desc">Geometric lighthouse projecting an expanding comforting beam across the darkness. A steady guiding presence.</div>
+        <div class="file-ref">concept-26-lighthouse-beam.svg</div>
+      </div>
+
+      <!-- 27 -->
+      <div class="card">
+        <div class="card-num">#27</div>
+        <div class="preview-stage"><div class="squircle-preview"><img src="./concept-27-compass-mind.svg" alt="Compass Mind" /></div></div>
+        <div class="card-metaphor">Purpose • Daily Guidance • Direction</div>
+        <div class="card-title">The Compass of Mind</div>
+        <div class="card-desc">Minimalist navigational compass rose with jewel pivot and diamond needle, pointing you toward personal clarity.</div>
+        <div class="file-ref">concept-27-compass-mind.svg</div>
+      </div>
+
+      <!-- 28 -->
+      <div class="card">
+        <div class="card-num">#28</div>
+        <div class="preview-stage"><div class="squircle-preview"><img src="./concept-28-prismatic-butterfly.svg" alt="Prismatic Butterfly" /></div></div>
+        <div class="card-metaphor">Transformation • Metamorphosis • Lightness</div>
+        <div class="card-title">The Prismatic Butterfly</div>
+        <div class="card-desc">Faceted geometric butterfly wings in spectrum colors. Celebrates personal transformation and mental renewal.</div>
+        <div class="file-ref">concept-28-prismatic-butterfly.svg</div>
+      </div>
+
+      <!-- 29 -->
+      <div class="card">
+        <div class="card-num">#29</div>
+        <div class="preview-stage"><div class="squircle-preview"><img src="./concept-29-hearth-flame.svg" alt="Hearth Flame" /></div></div>
+        <div class="card-metaphor">Warmth • Inner Flame • Attentiveness</div>
+        <div class="card-title">The Hearth Flame</div>
+        <div class="card-desc">Gentle teardrop flame cradling an inner glowing ember spark. Inspires warmth, empathy, and motivation.</div>
+        <div class="file-ref">concept-29-hearth-flame.svg</div>
+      </div>
+
+      <!-- 30 -->
+      <div class="card">
+        <div class="card-num">#30</div>
+        <div class="preview-stage"><div class="squircle-preview"><img src="./concept-30-digital-monolith.svg" alt="Digital Monolith" /></div></div>
+        <div class="card-metaphor">Modernist Bauhaus • Pure Form • Precision</div>
+        <div class="card-title">The Digital Monolith</div>
+        <div class="card-desc">Swiss modernist composition of two pill bars framing a floating companion sphere in an abstract 'C'.</div>
+        <div class="file-ref">concept-30-digital-monolith.svg</div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function toggleTheme() {
+      const isLight = document.body.classList.toggle('light-theme');
+      document.getElementById('themeIcon').textContent = isLight ? '🌙' : '☀️';
+      document.getElementById('themeLabel').textContent = isLight ? 'Switch to Dark Background' : 'Switch to Light Background';
+    }
+  </script>
+</body>
+</html>

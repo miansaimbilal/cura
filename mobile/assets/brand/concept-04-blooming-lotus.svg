@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
+  <defs>
+    <linearGradient id="centerPetal" x1="0%" y1="100%" x2="0%" y2="0%">
+      <stop offset="0%" stop-color="#7B6FE8" />
+      <stop offset="70%" stop-color="#A78BFA" />
+      <stop offset="100%" stop-color="#E0E7FF" />
+    </linearGradient>
+    <linearGradient id="leftPetal" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#34D399" />
+      <stop offset="70%" stop-color="#38BDF8" />
+      <stop offset="100%" stop-color="#818CF8" />
+    </linearGradient>
+    <linearGradient id="rightPetal" x1="100%" y1="100%" x2="0%" y2="0%">
+      <stop offset="0%" stop-color="#38BDF8" />
+      <stop offset="70%" stop-color="#818CF8" />
+      <stop offset="100%" stop-color="#C084FC" />
+    </linearGradient>
+    <radialGradient id="lotusGlow" cx="50%" cy="80%" r="60%">
+      <stop offset="0%" stop-color="#7B6FE8" stop-opacity="0.35" />
+      <stop offset="100%" stop-color="#7B6FE8" stop-opacity="0" />
+    </radialGradient>
+  </defs>
+
+  <!-- Base Glow -->
+  <circle cx="256" cy="300" r="140" fill="url(#lotusGlow)" />
+
+  <!-- Left Petal -->
+  <path d="M 256,360 
+           C 170,360 100,280 110,210 
+           C 120,150 180,160 256,250 
+           Z" 
+        fill="url(#leftPetal)" 
+        opacity="0.9" />
+
+  <!-- Right Petal -->
+  <path d="M 256,360 
+           C 342,360 412,280 402,210 
+           C 392,150 332,160 256,250 
+           Z" 
+        fill="url(#rightPetal)" 
+        opacity="0.9" />
+
+  <!-- Center Floating Lotus Leaf / Diamond Flame -->
+  <path d="M 256,120 
+           C 285,180 300,250 256,360 
+           C 212,250 227,180 256,120 Z" 
+        fill="url(#centerPetal)" />
+
+  <!-- Ascending Mindful Pearl / Spark -->
+  <circle cx="256" cy="95" r="10" fill="#FFFFFF" />
+  <circle cx="256" cy="95" r="18" fill="#FFFFFF" opacity="0.25" />
+</svg>

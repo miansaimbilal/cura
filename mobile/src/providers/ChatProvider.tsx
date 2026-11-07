@@ -3,6 +3,7 @@ import { Conversation, Message } from '../types/chat';
 import { getDatabase } from '../db/client';
 import * as chatRepo from '../db/chatRepository';
 import { generateUUID } from '../utils/uuid';
+import { getLocalDateString } from '../utils/date';
 
 interface ChatContextValue {
   conversations: Conversation[];
@@ -195,6 +196,7 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
           body: JSON.stringify({
             content: content.trim(),
             clientMessageId,
+            clientLocalDate: getLocalDateString(),
             provider: options?.provider,
             model: options?.model,
           }),

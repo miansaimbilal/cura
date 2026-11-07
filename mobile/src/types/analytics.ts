@@ -31,3 +31,16 @@ export interface AnalyticsSummary {
   totalMoodLogs: number;
   totalTasksFinished: number;
 }
+
+export interface DailySummaryData {
+  localDate: string;
+  throughput: {
+    completedCount: number;
+  };
+  cohort: {
+    total: number;
+    completed: number;
+    percentage: number | null;
+  };
+  mood: MoodDistribution;
+}

@@ -258,7 +258,11 @@ export class ChatService {
     }
 
     // 5. Build Bounded Context Package
-    const systemContext = await this.contextBuilder.buildSystemContext({ userId, conversationId });
+    const systemContext = await this.contextBuilder.buildSystemContext({
+      userId,
+      conversationId,
+      clientLocalDate: input.clientLocalDate,
+    });
 
     // Fetch up to 10 recent messages for conversational continuity
     const history = await db

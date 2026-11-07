@@ -2,6 +2,7 @@ export * from './task';
 export * from './mood';
 export * from './analytics';
 export * from './chat';
+export * from './checkin';
 
 export type Priority = 'low' | 'medium' | 'high';
 

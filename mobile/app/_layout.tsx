@@ -1,14 +1,55 @@
-import React from 'react';
-import { Stack } from 'expo-router';
+import React, { useEffect } from 'react';
+import { Stack, useRouter } from 'expo-router';
+import * as Notifications from 'expo-notifications';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { ThemeProvider, useTheme } from '../src/providers/ThemeProvider';
 import { TaskProvider } from '../src/providers/TaskProvider';
 import { MoodProvider } from '../src/providers/MoodProvider';
 import { ChatProvider } from '../src/providers/ChatProvider';
+import { useChat } from '../src/hooks/useChat';
 import { ErrorBoundary } from '../src/components/common/ErrorBoundary';
+import { configureNotificationHandler } from '../src/services/checkinScheduler';
+import { setupReconciliationManager } from '../src/services/reconciliationManager';
+import { handleCheckinNotificationResponse } from '../src/services/notificationResponseHandler';
+
+configureNotificationHandler();
 
 function RootNavigationLayout() {
   const { theme } = useTheme();
+  const router = useRouter();
+  const { selectConversation } = useChat();
+
+  useEffect(() => {
+    // 1. Set up all 6 lifecycle reconciliation triggers (cold launch, resume, preferences, permissions, timezone, midnight)
+    const cleanupReconciliation = setupReconciliationManager();
+
+    // 2. Check for cold-start notification response tap
+    Notifications.getLastNotificationResponseAsync().then((response) => {
+      if (response) {
+        handleCheckinNotificationResponse(response).then((result) => {
+          if (result.handled && result.conversation) {
+            selectConversation(result.conversation.id);
+            router.push('/(tabs)/chat' as any);
+          }
+        });
+      }
+    });
+
+    // 3. Foreground / background notification tap listener
+    const notifSub = Notifications.addNotificationResponseReceivedListener((response) => {
+      handleCheckinNotificationResponse(response).then((result) => {
+        if (result.handled && result.conversation) {
+          selectConversation(result.conversation.id);
+          router.push('/(tabs)/chat' as any);
+        }
+      });
+    });
+
+    return () => {
+      cleanupReconciliation();
+      notifSub.remove();
+    };
+  }, [router, selectConversation]);
 
   return (
     <Stack

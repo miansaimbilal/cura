@@ -39,6 +39,19 @@ export const listMessagesQuerySchema = z.object({
   }).default({}),
 });
 
+export function isValidCalendarDate(val: string): boolean {
+  if (typeof val !== 'string') return false;
+  const match = val.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (!match) return false;
+  const year = parseInt(match[1], 10);
+  const month = parseInt(match[2], 10);
+  const day = parseInt(match[3], 10);
+  if (month < 1 || month > 12) return false;
+  if (day < 1 || day > 31) return false;
+  const d = new Date(year, month - 1, day);
+  return d.getFullYear() === year && d.getMonth() === month - 1 && d.getDate() === day;
+}
+
 export const sendMessageSchema = z.object({
   params: z.object({
     id: z.string().uuid('Invalid conversation UUID'),
@@ -46,6 +59,9 @@ export const sendMessageSchema = z.object({
   body: z.object({
     content: z.string().trim().min(1, 'Message content cannot be empty').max(10000, 'Message exceeds 10000 character limit'),
     clientMessageId: z.string().trim().max(100).optional(),
+    clientLocalDate: z.string().trim().refine(isValidCalendarDate, {
+      message: 'Invalid clientLocalDate. Must be a valid calendar date in YYYY-MM-DD format.',
+    }).optional(),
     provider: z.enum(['groq', 'openrouter'], {
       errorMap: () => ({ message: 'Interactive chat is restricted to "groq" or "openrouter".' }),
     }).optional(),
