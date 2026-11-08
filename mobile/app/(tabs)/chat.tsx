@@ -19,6 +19,7 @@ import { MessageBubble } from '../../src/components/chat/MessageBubble';
 import { ChatInput } from '../../src/components/chat/ChatInput';
 import { ConversationListItem } from '../../src/components/chat/ConversationListItem';
 import { CheckinPreferencesModal } from '../../src/components/checkin/CheckinPreferencesModal';
+import { CrisisSupportModal } from '../../src/components/settings/CrisisSupportModal';
 
 const PROMPT_SUGGESTIONS = [
   'How did my day go so far?',
@@ -50,6 +51,7 @@ export default function ChatScreen() {
 
   const [localInput, setLocalInput] = useState<string | null>(null);
   const [isCheckinPrefsOpen, setIsCheckinPrefsOpen] = useState(false);
+  const [isCrisisHelpOpen, setIsCrisisHelpOpen] = useState(false);
   const activeDraft = activeConversation ? drafts[activeConversation.id] ?? '' : '';
   const inputVal = localInput ?? activeDraft;
   const flatListRef = useRef<FlatList>(null);
@@ -162,6 +164,15 @@ export default function ChatScreen() {
 
           <TouchableOpacity
             activeOpacity={0.7}
+            onPress={() => setIsCrisisHelpOpen(true)}
+            style={styles.headerAction}
+            accessibilityLabel="Crisis and safety support"
+          >
+            <Ionicons name="heart-circle-outline" size={22} color={theme.colors.error} />
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            activeOpacity={0.7}
             onPress={() => setIsCheckinPrefsOpen(true)}
             style={styles.headerAction}
             accessibilityLabel="Check-in preferences"
@@ -263,6 +274,12 @@ export default function ChatScreen() {
         <CheckinPreferencesModal
           visible={isCheckinPrefsOpen}
           onClose={() => setIsCheckinPrefsOpen(false)}
+        />
+
+        {/* Crisis Support Directory Modal */}
+        <CrisisSupportModal
+          visible={isCrisisHelpOpen}
+          onClose={() => setIsCrisisHelpOpen(false)}
         />
       </KeyboardAvoidingView>
     );

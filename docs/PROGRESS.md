@@ -1,6 +1,6 @@
 # Project Progress
 
-**Current phase:** Phase 7 — Completed with Documented Limitations
+**Current phase:** Phase 9 (SPEC Phase 9) — Settings, Privacy, and Notifications Completed
 
 ---
 
@@ -600,10 +600,96 @@ Phase 7 establishes the complete offline-first daily check-in and reflection sys
 
 ---
 
-## 9. Next Phase Roadmap
+## 9. Phase 8 — Native Home-Screen Widgets (Android RemoteViews & iOS WidgetKit)
 
-- **Phase 8 — Home-Screen Widgets:**
-  - Research native widget support for Android and iOS.
-  - Implement task management widget.
-  - Implement mood tracking widget.
-  - Implement widget data sharing and quote rotation.
+### Key Deliverables Completed:
+1. **SQLite Migration 0006 (`mobile/src/db/migrations/0006_widget_actions_and_snapshots.ts`):**
+   - Added `widget_actions`: Idempotent action audit ledger tracking `action_id`, `action_type`, `target_id`, `requested_state`, `user_id`, `status` (`pending`, `processed`, `failed`), and `error_reason`.
+   - Added `widget_snapshot_metadata`: Singleton row tracking `user_id`, `account_epoch`, `source_revision`, and `published_revision`.
+2. **Snapshot Generation & Publishing Orchestrator (`mobile/src/services/widgets/`):**
+   - `snapshotBuilder.ts`: Builds atomic, bounded JSON payload (`tasks`, `mood`, `quotes`, `accountEpoch`, `sourceRevision`). 10 items max in snapshot, 5 items in widget display.
+   - `publishOrchestrator.ts`: Re-publishes widgets on SQLite trigger mutations with debounce, avoiding race conditions and ensuring atomic manifest updates.
+   - `actionService.ts`: Processes deep-link taps (`cura://widget-action?...`) with signature validation, duplicate suppression, and epoch checking.
+3. **Android Native Implementation (`mobile/modules/widget-bridge/android/`):**
+   - Pure RemoteViews implementation compatible with API 21 through 35+ (zero Compose compiler overhead).
+   - `CuraTasksWidget.kt`: Tasks list with instant check/uncheck deep links, 1MB Binder ceiling protection, empty placeholders, and overdue badges.
+   - `CuraMoodWidget.kt`: 5 quick mood logging buttons (Happy, Calm, Sad, Stressed, Tired) and rotating inspirational quotes.
+4. **iOS Native Implementation (`mobile/modules/widget-bridge/ios/`):**
+   - Swift / WidgetKit bridge leveraging App Group (`group.com.cura.app`) shared storage.
+   - `CuraTasksWidget.swift` and `CuraMoodWidget.swift` matching Android JSON schema and semantics.
+5. **Documentation & Parity Audit (`mobile/docs/widgets.md`):**
+   - Verified 3-way schema parity between TypeScript reader, Kotlin Android widget, and Swift iOS widget.
+
+---
+
+## 10. Auth Milestone — Guest Migration & Mobile Authentication
+
+### Key Deliverables Completed:
+1. **Multi-Table Atomic Guest Data Migration (`mobile/src/services/auth/sessionService.ts`):**
+   - In-place SQLite migration reassigning user ownership from `'guest'` to the authenticated `user_id` across `tasks`, `task_history`, `mood_entries`, `conversations`, `messages`, `checkin_occurrences`, and `sync_outbox`.
+   - Conflict resolution: deduplicates colliding task IDs or check-in occurrences.
+   - Transitions widget metadata singleton to new epoch, clearing stale guest snapshots.
+2. **Mobile Authentication Screens & Routing (`mobile/app/(auth)/`):**
+   - `login.tsx` and `register.tsx` with error handling, network awareness, and token persistence.
+   - Replaced static guest notices in `profile.tsx` with live authentication state cards.
+3. **Session Management & Refresh (`mobile/src/services/auth/authContext.tsx`):**
+   - Hardware-backed token storage via `expo-secure-store`.
+   - Automatic JWT exp decoding and transparent token refresh when `<60s` remain.
+   - Graceful fallback on refresh rejection to guest mode with session expiry notice.
+   - Batch cloud migration retry queue in `sync_outbox`.
+
+---
+
+## 11. SPEC Phase 9 — Settings, Privacy, and Notifications
+
+### Key Deliverables Completed:
+1. **Appearance & Complete Theme System (`mobile/src/theme/`, `mobile/src/providers/ThemeProvider.tsx`):**
+   - Dark, Light, and System modes with immediate reactive switching and persistence to `@cura_theme_mode`.
+   - 100% semantic token compliance across all settings screens and components: zero hardcoded hex colors (`#...`).
+2. **Independent Notification Toggles (SPEC §11) (`mobile/src/services/notificationPreferences.ts`):**
+   - 6 fully independent categories:
+     1. `timedTaskReminders`: Timed task reminders scheduled via `taskNotificationScheduler.ts`.
+     2. `endOfDayReminders`: 20:00 end-of-day task wrap-up notifications.
+     3. `morningCheckin`: Morning AI reflection check-in.
+     4. `eveningCheckin`: Evening reflection check-in.
+     5. `accomplishments`: Task completion milestone awards.
+     6. `aiInsights`: Proactive wellbeing insights.
+   - Disabling one category never disables others.
+   - Quiet hours evaluation helper (`isTimeInQuietHours`) respecting overnight boundaries (e.g., 22:00 to 08:00).
+   - Full backward compatibility with legacy `checkinScheduler.ts` methods.
+3. **Task Notification Lifecycle Wiring (`mobile/src/providers/TaskProvider.tsx`):**
+   - Automatically schedules reminders on timed task creation and update.
+   - Automatically cancels reminders when tasks are completed, cancelled, or soft-deleted.
+4. **AI Provider & Privacy Controls (`mobile/src/components/settings/AISettingsModal.tsx`, `PrivacyPolicyModal.tsx`):**
+   - Provider catalog (`gemini`, `groq`, `openrouter`, `cloudflare`, `xai`) with live server health checks.
+   - Interactive model selection pills and background failover priority display.
+   - Truthful privacy disclosures: local SQLite sovereignty, bounded context packet disclosures, and third-party AI provider logging terms.
+5. **Data Portability & Deletion Invariants (`mobile/src/services/dataExportService.ts`, `DataManagementModal.tsx`):**
+   - `exportUserDataJson`: Full structured JSON export of tasks, moods, conversations, messages, and check-ins with metadata.
+   - `exportUserDataCsv`: RFC 4180 compliant CSV export with proper escaping and section divisions.
+   - Native OS sharing integration via `Share.share`.
+   - Live SQLite storage breakdown (counts and bytes).
+   - Database defragmentation (`VACUUM`).
+   - "Delete My Data" flow: atomic SQLite transaction purging all user records, resetting widget epoch to guest, and clearing `expo-secure-store` tokens. Confirmation requires explicitly typing "DELETE".
+6. **Crisis Support Directory (`mobile/src/services/crisisSupportService.ts`, `CrisisSupportModal.tsx`):**
+   - Comprehensive crisis directory with verified numbers:
+     - Pakistan (default with Faisalabad context): Rescue 1122, Police 15, Edhi 115, Umang (0311-7786264), Rozan (0800-22444).
+     - United States: 988 Suicide & Crisis Lifeline, Crisis Text Line 741741, 911.
+     - United Kingdom: Samaritans 116123, Shout 85258, 999 / 111.
+     - International directory fallback.
+   - One-tap phone dialing via `Linking.openURL('tel:...')`.
+   - Explicit disclaimer that Cura is an AI companion and does not provide emergency medical or psychiatric monitoring.
+   - Linked directly from settings profile and chat screen navigation header.
+7. **Verification & Diagnostics:**
+   - Strict TypeScript checking: 0 errors across entire mobile app.
+   - Zero hardcoded colors in all settings modals and profile tab.
+   - Comprehensive integration tests in `mobile/tests/integration/settingsPrivacy.test.ts` (17/17 passing).
+
+---
+
+## 12. Next Phase Roadmap
+
+- **SPEC Phase 10 — Integration, Polish, OTA, and Release Preparation:**
+  - End-to-end user acceptance testing across both guest and authenticated states.
+  - Performance profiling, startup latency, and memory leak verification.
+  - EAS Update fingerprint stability verification and release build automation.

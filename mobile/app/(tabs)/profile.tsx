@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, StyleSheet, TouchableOpacity } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -14,10 +14,24 @@ import { useTheme } from '../../src/hooks/useTheme';
 import { useAuth } from '../../src/services/auth';
 import { ThemeMode } from '../../src/theme';
 
+// Settings Modals
+import { NotificationSettingsModal } from '../../src/components/settings/NotificationSettingsModal';
+import { AISettingsModal } from '../../src/components/settings/AISettingsModal';
+import { CrisisSupportModal } from '../../src/components/settings/CrisisSupportModal';
+import { PrivacyPolicyModal } from '../../src/components/settings/PrivacyPolicyModal';
+import { DataManagementModal } from '../../src/components/settings/DataManagementModal';
+
 export default function ProfileScreen() {
   const { theme, themeMode, setThemeMode } = useTheme();
   const { isGuest, email, userId, logout } = useAuth();
   const router = useRouter();
+
+  // Modal display states
+  const [showNotifications, setShowNotifications] = useState<boolean>(false);
+  const [showAISettings, setShowAISettings] = useState<boolean>(false);
+  const [showCrisisSupport, setShowCrisisSupport] = useState<boolean>(false);
+  const [showPrivacyPolicy, setShowPrivacyPolicy] = useState<boolean>(false);
+  const [showDataManagement, setShowDataManagement] = useState<boolean>(false);
 
   const themeOptions: { id: ThemeMode; label: string; icon: string }[] = [
     { id: 'dark', label: 'Dark', icon: 'moon' },
@@ -30,11 +44,11 @@ export default function ProfileScreen() {
       header={
         <Header
           title="Profile & Settings"
-          subtitle="Application foundation & preferences"
+          subtitle="Application foundation, preferences & data sovereignty"
         />
       }
     >
-      {/* Profile Presentation (Guest vs Authenticated) */}
+      {/* 1. Profile Presentation (Guest vs Authenticated) */}
       <Card variant="surface" style={styles.profileCard}>
         <View style={styles.profileRow}>
           <Avatar name={isGuest ? 'Guest User' : (email || 'User')} size="lg" />
@@ -79,7 +93,7 @@ export default function ProfileScreen() {
         </View>
 
         {isGuest ? (
-          <View style={styles.authButtonsRow}>
+          <View style={[styles.authButtonsRow, { borderTopColor: theme.colors.borderSubtle }]}>
             <Button
               title="Sign In"
               variant="primary"
@@ -96,7 +110,7 @@ export default function ProfileScreen() {
             />
           </View>
         ) : (
-          <View style={styles.authButtonsRow}>
+          <View style={[styles.authButtonsRow, { borderTopColor: theme.colors.borderSubtle }]}>
             <Button
               title="Sign Out"
               variant="outline"
@@ -108,10 +122,10 @@ export default function ProfileScreen() {
         )}
       </Card>
 
-      {/* Centralized Appearance Selection (Functional) */}
+      {/* 2. Appearance Theme Selection (Functional & Persisted) */}
       <SectionHeader
         title="Appearance"
-        subtitle="Centralized theme switcher (Functional in Phase 1)"
+        subtitle="Theme switcher (Dark, Light, System) applied instantly"
       />
       <Card variant="surface" style={styles.settingsCard}>
         <View style={styles.themeSelectorRow}>
@@ -149,69 +163,157 @@ export default function ProfileScreen() {
         </View>
       </Card>
 
-      {/* Settings Layout Previews (Non-functional demonstration) */}
+      {/* 3. Settings & Controls */}
       <SectionHeader
-        title="Settings & Privacy Preview"
-        subtitle="Static preview of future configuration screens"
+        title="Preferences & Configuration"
+        subtitle="Notification schedules, AI providers, and safety support"
       />
-      <Card variant="surface" style={styles.previewCard}>
-        <View style={styles.previewRow}>
-          <View style={styles.previewTextCol}>
+      <Card variant="surface" style={styles.settingsCard}>
+        {/* Notification Preferences Row */}
+        <TouchableOpacity
+          activeOpacity={0.7}
+          onPress={() => setShowNotifications(true)}
+          style={styles.menuRow}
+        >
+          <View style={[styles.menuIconPill, { backgroundColor: theme.colors.surfaceSubtle }]}>
+            <Ionicons name="notifications-outline" size={18} color={theme.colors.accent} />
+          </View>
+          <View style={styles.menuTextCol}>
             <Text variant="body" weight="600">
               Notification Preferences
             </Text>
             <Text variant="caption" color={theme.colors.textSecondary}>
-              Granular toggles for tasks, check-ins, and reminders (Phase 9)
+              Independent toggles for all 6 categories, quiet hours & local timezone
             </Text>
           </View>
           <Ionicons name="chevron-forward" size={18} color={theme.colors.textMuted} />
-        </View>
+        </TouchableOpacity>
 
         <Divider />
 
-        <View style={styles.previewRow}>
-          <View style={styles.previewTextCol}>
+        {/* AI Provider Settings Row */}
+        <TouchableOpacity
+          activeOpacity={0.7}
+          onPress={() => setShowAISettings(true)}
+          style={styles.menuRow}
+        >
+          <View style={[styles.menuIconPill, { backgroundColor: theme.colors.surfaceSubtle }]}>
+            <Ionicons name="sparkles-outline" size={18} color={theme.colors.accent} />
+          </View>
+          <View style={styles.menuTextCol}>
             <Text variant="body" weight="600">
-              Country & Safety Support
+              AI Provider & Models
             </Text>
             <Text variant="caption" color={theme.colors.textSecondary}>
-              Country selection and crisis helpline directories (Phase 9)
+              Selected chat provider, model choices, connection health & failover priority
             </Text>
           </View>
           <Ionicons name="chevron-forward" size={18} color={theme.colors.textMuted} />
-        </View>
+        </TouchableOpacity>
 
         <Divider />
 
-        <View style={styles.previewRow}>
-          <View style={styles.previewTextCol}>
+        {/* Crisis Support & Helplines Row */}
+        <TouchableOpacity
+          activeOpacity={0.7}
+          onPress={() => setShowCrisisSupport(true)}
+          style={styles.menuRow}
+        >
+          <View style={[styles.menuIconPill, { backgroundColor: theme.colors.surfaceSubtle }]}>
+            <Ionicons name="heart-circle-outline" size={18} color={theme.colors.accent} />
+          </View>
+          <View style={styles.menuTextCol}>
             <Text variant="body" weight="600">
-              Data Portability & Export
+              Support & Crisis Helplines
             </Text>
             <Text variant="caption" color={theme.colors.textSecondary}>
-              Local JSON/CSV export and database management (Phase 9)
+              Country-specific emergency numbers (Rescue 1122, Umang 24/7) & support directory
             </Text>
           </View>
           <Ionicons name="chevron-forward" size={18} color={theme.colors.textMuted} />
-        </View>
+        </TouchableOpacity>
       </Card>
 
-      {/* Scope Disclaimer */}
-      <View style={[styles.noteBox, { backgroundColor: theme.colors.surfaceSubtle }]}>
-        <Text variant="caption" color={theme.colors.textMuted} align="center">
-          Phase 1 layout preview. Authentication, cloud sync, helpline directories, and data export belong to future phases.
-        </Text>
-      </View>
+      {/* 4. Privacy & Data Sovereignty */}
+      <SectionHeader
+        title="Privacy & Data Sovereignty"
+        subtitle="Complete ownership of your entries with open exports and deletion"
+      />
+      <Card variant="surface" style={styles.settingsCard}>
+        {/* Privacy Policy / Explanations Row */}
+        <TouchableOpacity
+          activeOpacity={0.7}
+          onPress={() => setShowPrivacyPolicy(true)}
+          style={styles.menuRow}
+        >
+          <View style={[styles.menuIconPill, { backgroundColor: theme.colors.surfaceSubtle }]}>
+            <Ionicons name="shield-outline" size={18} color={theme.colors.accent} />
+          </View>
+          <View style={styles.menuTextCol}>
+            <Text variant="body" weight="600">
+              Privacy & AI Data Explanations
+            </Text>
+            <Text variant="caption" color={theme.colors.textSecondary}>
+              Transparent accounting of local SQLite storage vs scoped AI prompt context
+            </Text>
+          </View>
+          <Ionicons name="chevron-forward" size={18} color={theme.colors.textMuted} />
+        </TouchableOpacity>
+
+        <Divider />
+
+        {/* Data Portability & Database Management Row */}
+        <TouchableOpacity
+          activeOpacity={0.7}
+          onPress={() => setShowDataManagement(true)}
+          style={styles.menuRow}
+        >
+          <View style={[styles.menuIconPill, { backgroundColor: theme.colors.surfaceSubtle }]}>
+            <Ionicons name="server-outline" size={18} color={theme.colors.accent} />
+          </View>
+          <View style={styles.menuTextCol}>
+            <Text variant="body" weight="600">
+              Data Controls & Storage Management
+            </Text>
+            <Text variant="caption" color={theme.colors.textSecondary}>
+              Export JSON / CSV, vacuum database, and permanent data deletion
+            </Text>
+          </View>
+          <Ionicons name="chevron-forward" size={18} color={theme.colors.textMuted} />
+        </TouchableOpacity>
+      </Card>
 
       {/* App Version Info */}
       <View style={styles.footer}>
         <Text variant="caption" color={theme.colors.textMuted} align="center">
-          Cura Personal Companion • Foundation v1.0.0
+          Cura Personal Companion • SPEC Phase 9 Complete
         </Text>
         <Text variant="caption" color={theme.colors.textMuted} align="center">
-          Expo SDK 58 • React Native 0.88 • New Architecture
+          Expo SDK 58 • React Native 0.88 • SQLite Local-First
         </Text>
       </View>
+
+      {/* Interactive Modals */}
+      <NotificationSettingsModal
+        visible={showNotifications}
+        onClose={() => setShowNotifications(false)}
+      />
+      <AISettingsModal
+        visible={showAISettings}
+        onClose={() => setShowAISettings(false)}
+      />
+      <CrisisSupportModal
+        visible={showCrisisSupport}
+        onClose={() => setShowCrisisSupport(false)}
+      />
+      <PrivacyPolicyModal
+        visible={showPrivacyPolicy}
+        onClose={() => setShowPrivacyPolicy(false)}
+      />
+      <DataManagementModal
+        visible={showDataManagement}
+        onClose={() => setShowDataManagement(false)}
+      />
     </ScreenContainer>
   );
 }
@@ -234,7 +336,6 @@ const styles = StyleSheet.create({
     marginTop: 16,
     paddingTop: 14,
     borderTopWidth: StyleSheet.hairlineWidth,
-    borderTopColor: 'rgba(150, 150, 150, 0.2)',
   },
   badgeRow: {
     flexDirection: 'row',
@@ -272,26 +373,25 @@ const styles = StyleSheet.create({
   themeOptionText: {
     marginLeft: 6,
   },
-  previewCard: {
-    marginBottom: 20,
-  },
-  previewRow: {
+  menuRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingVertical: 6,
+    paddingVertical: 8,
   },
-  previewTextCol: {
-    flex: 1,
+  menuIconPill: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    alignItems: 'center',
+    justifyContent: 'center',
     marginRight: 12,
   },
-  noteBox: {
-    marginBottom: 16,
-    padding: 12,
-    borderRadius: 12,
+  menuTextCol: {
+    flex: 1,
+    marginRight: 10,
   },
   footer: {
-    paddingVertical: 12,
+    paddingVertical: 16,
     gap: 2,
   },
 });

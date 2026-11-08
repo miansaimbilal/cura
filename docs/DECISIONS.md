@@ -340,3 +340,45 @@ This document records the foundational architectural, technical, and product dec
 - **Alternatives considered:**
   - *Server-side analytics aggregation:* Requires network connectivity and violates guest-first privacy.
 - **Limitations:** Analytics reflect only the current device's local database history until Phase 9 sync.
+
+---
+
+### Decision 8.1: Native Android RemoteViews over Jetpack Glance for Home-Screen Widgets
+- **The Decision:** Implement Android home-screen widgets (`CuraTasksWidget` and `CuraMoodWidget`) using traditional Android `RemoteViews` and `AppWidgetProvider` rather than Jetpack Glance.
+- **Why it was made:** Jetpack Glance mandates the Jetpack Compose compiler runtime and Kotlin 2.x+, introducing excessive build friction and dependency incompatibilities into the Expo SDK 52 prebuild configuration. Native `RemoteViews` works cleanly across Android API 21 through 35+, adds zero additional native libraries or compiler plugins, and executes with sub-millisecond rendering overhead.
+- **Limitations:** UI layouts must be specified in XML layout resources rather than Compose DSL.
+
+---
+
+### Decision 8.2: App Group Shared Storage for iOS WidgetKit Extension
+- **The Decision:** Use iOS App Group container (`group.com.cura.app`) as the data sharing bridge between the main Expo React Native app and the native Swift WidgetKit extension.
+- **Why it was made:** Apple's sandboxing isolates widget extensions from the main application sandbox. Shared `FileManager.containerURL(forSecurityApplicationGroupIdentifier:)` allows the main app to atomically write widget snapshot JSON files (`current.json`) that WidgetKit reads directly with zero inter-process IPC overhead.
+- **Limitations:** Requires App Group entitlement to be configured in the Apple Developer provisioning profile during production builds.
+
+---
+
+### Decision 9.1: Multi-Table In-Place Guest Migration with Atomic Epoch Transition
+- **The Decision:** When a guest user logs in or registers, perform guest data migration directly in local SQLite using `UPDATE ... SET user_id = ? WHERE user_id = 'guest'` wrapped in a single database transaction (`db.withTransactionAsync`), paired with duplicate deduplication and an atomic widget metadata epoch transition (`account_epoch + 1`).
+- **Why it was made:** Preserves all user-generated tasks, mood reflections, and chat history created during guest exploration. In-place updates avoid costly and error-prone copy-delete cycles, while bumping the account epoch guarantees that native home-screen widgets immediately purge stale guest snapshots and display the authenticated user's state.
+- **Limitations:** If network sync fails post-migration, un-synced entities are queued in `sync_outbox` for background retries.
+
+---
+
+### Decision 9.2: Independent 6-Category Notification Architecture (SPEC §11)
+- **The Decision:** Model notification preferences as 6 distinct, independent boolean switches (`timedTaskReminders`, `endOfDayReminders`, `morningCheckin`, `eveningCheckin`, `accomplishments`, `aiInsights`), supplemented by configurable quiet hours.
+- **Why it was made:** Conforms strictly to SPEC Section 11 requirements. Users must be able to disable disruptive notifications (such as morning reflections or gamified accomplishment alerts) without unintentionally canceling critical timed task alerts.
+- **Limitations:** OS-level notification permissions must still be granted overall for any local notifications to be delivered.
+
+---
+
+### Decision 9.3: Atomic "Delete My Data" Invariant and Explicit Confirmation (SPEC §16.2)
+- **The Decision:** "Delete My Data" executes as an atomic SQLite transaction purging all records across all user-scoped tables (`tasks`, `task_history`, `mood_entries`, `conversations`, `messages`, `checkin_occurrences`, `sync_outbox`), clears SecureStore tokens, and resets the widget account epoch to guest. Destruction requires the user to explicitly type the word "DELETE" into a confirmation input.
+- **Why it was made:** Guarantees absolute user sovereignty over their private health and productivity data with zero orphaned rows. Requiring explicit typed confirmation prevents catastrophic accidental data loss.
+- **Limitations:** Deletion is permanent and irreversible on the local device.
+
+---
+
+### Decision 9.4: Pakistan-First Verified Crisis Helpline Directory with Global Fallbacks (SPEC §16.5)
+- **The Decision:** Implement a country-aware crisis directory defaulting to Pakistan (Rescue 1122, Police 15, Edhi 115, Umang mental health helpline, Rozan counseling) with full fallbacks for US (988), UK (111/999/Samaritans), and International directories. The UI mandates prominent disclaimers that Cura is an AI companion and does not provide clinical psychiatric care or real-time emergency monitoring.
+- **Why it was made:** Provides immediate, life-saving assistance tailored to the user's primary operating context (Pakistan / Faisalabad region) while ensuring international users retain verified emergency resources. One-tap dialing minimizes friction during acute crisis moments.
+- **Limitations:** Requires phone calling capability on the mobile device.

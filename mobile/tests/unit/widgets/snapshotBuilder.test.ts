@@ -12,7 +12,7 @@ import {
 function getOffsetDate(days: number): string {
   const d = new Date();
   d.setDate(d.getDate() + days);
-  return d.toISOString().split('T')[0];
+  return getLocalDateString(d);
 }
 
 describe('Widget Snapshot Builder Unit Tests', () => {

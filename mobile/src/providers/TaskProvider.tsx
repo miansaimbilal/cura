@@ -21,6 +21,10 @@ import {
   getTaskHistory as repoGetTaskHistory,
 } from '../db/taskRepository';
 import { getLocalDateString } from '../utils/date';
+import {
+  scheduleTaskReminder,
+  cancelTaskReminder,
+} from '../services/taskNotificationScheduler';
 
 export interface TaskContextType {
   tasks: Task[];
@@ -127,6 +131,10 @@ export const TaskProvider: React.FC<TaskProviderProps> = ({ children }) => {
     } catch {
       // Haptics not available on web/unsupported device
     }
+    // Schedule reminder if timed
+    scheduleTaskReminder(newTask).catch((err) =>
+      console.warn('Failed to schedule reminder for task:', err)
+    );
     return newTask;
   }, [loadData, currentFilter]);
 
@@ -134,6 +142,9 @@ export const TaskProvider: React.FC<TaskProviderProps> = ({ children }) => {
     const db = await getDatabase();
     const updated = await repoUpdateTask(db, id, input);
     await loadData(currentFilter);
+    scheduleTaskReminder(updated).catch((err) =>
+      console.warn('Failed to update reminder for task:', err)
+    );
     return updated;
   }, [loadData, currentFilter]);
 
@@ -146,6 +157,15 @@ export const TaskProvider: React.FC<TaskProviderProps> = ({ children }) => {
       // Haptics optional
     }
     await loadData(currentFilter);
+    if (updated.status === 'completed') {
+      cancelTaskReminder(updated.id).catch((err) =>
+        console.warn('Failed to cancel reminder on task completion:', err)
+      );
+    } else {
+      scheduleTaskReminder(updated).catch((err) =>
+        console.warn('Failed to reschedule reminder on task reopen:', err)
+      );
+    }
     return updated;
   }, [loadData, currentFilter]);
 
@@ -157,6 +177,9 @@ export const TaskProvider: React.FC<TaskProviderProps> = ({ children }) => {
     const db = await getDatabase();
     const updated = await repoPostponeTask(db, id, newDate, newTime);
     await loadData(currentFilter);
+    scheduleTaskReminder(updated).catch((err) =>
+      console.warn('Failed to update reminder on postpone:', err)
+    );
     return updated;
   }, [loadData, currentFilter]);
 
@@ -164,6 +187,9 @@ export const TaskProvider: React.FC<TaskProviderProps> = ({ children }) => {
     const db = await getDatabase();
     const updated = await repoCancelTask(db, id);
     await loadData(currentFilter);
+    cancelTaskReminder(id).catch((err) =>
+      console.warn('Failed to cancel reminder on task cancellation:', err)
+    );
     return updated;
   }, [loadData, currentFilter]);
 
@@ -172,6 +198,9 @@ export const TaskProvider: React.FC<TaskProviderProps> = ({ children }) => {
     const success = await repoDeleteTask(db, id);
     if (success) {
       await loadData(currentFilter);
+      cancelTaskReminder(id).catch((err) =>
+        console.warn('Failed to cancel reminder on task delete:', err)
+      );
     }
     return success;
   }, [loadData, currentFilter]);
