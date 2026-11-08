@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Linking } from 'react-native';
+import { Linking, View, ActivityIndicator } from 'react-native';
 import { Stack, useRouter } from 'expo-router';
 import * as Notifications from 'expo-notifications';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
@@ -14,6 +14,7 @@ import { setupReconciliationManager } from '../src/services/reconciliationManage
 import { handleCheckinNotificationResponse } from '../src/services/notificationResponseHandler';
 import { getDatabase } from '../src/db/client';
 import { handleWidgetDeepLink } from '../src/services/widgets/widgetDeepLink';
+import { AuthProvider, useAuth } from '../src/services/auth';
 
 configureNotificationHandler();
 
@@ -21,6 +22,7 @@ function RootNavigationLayout() {
   const { theme } = useTheme();
   const router = useRouter();
   const { selectConversation } = useChat();
+  const { isAuthLoading } = useAuth();
 
   useEffect(() => {
     // 1. Set up all 6 lifecycle reconciliation triggers (cold launch, resume, preferences, permissions, timezone, midnight)
@@ -78,6 +80,21 @@ function RootNavigationLayout() {
     };
   }, [router, selectConversation]);
 
+  if (isAuthLoading) {
+    return (
+      <View
+        style={{
+          flex: 1,
+          backgroundColor: theme.colors.background,
+          justifyContent: 'center',
+          alignItems: 'center',
+        }}
+      >
+        <ActivityIndicator size="large" color={theme.colors.accent} />
+      </View>
+    );
+  }
+
   return (
     <Stack
       screenOptions={{
@@ -87,6 +104,7 @@ function RootNavigationLayout() {
       }}
     >
       <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+      <Stack.Screen name="(auth)" options={{ headerShown: false }} />
       <Stack.Screen
         name="modal"
         options={{
@@ -104,13 +122,15 @@ export default function RootLayout() {
     <ErrorBoundary>
       <SafeAreaProvider>
         <ThemeProvider>
-          <TaskProvider>
-            <MoodProvider>
-              <ChatProvider>
-                <RootNavigationLayout />
-              </ChatProvider>
-            </MoodProvider>
-          </TaskProvider>
+          <AuthProvider>
+            <TaskProvider>
+              <MoodProvider>
+                <ChatProvider>
+                  <RootNavigationLayout />
+                </ChatProvider>
+              </MoodProvider>
+            </TaskProvider>
+          </AuthProvider>
         </ThemeProvider>
       </SafeAreaProvider>
     </ErrorBoundary>
