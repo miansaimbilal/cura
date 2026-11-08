@@ -29,7 +29,7 @@ describe('Real SQLite Database & Check-in Occurrence Repository (Integration Tes
   describe('1. Migration 0005 & Database Schema', () => {
     it('sets PRAGMA user_version to at least 5', async () => {
       const versionResult = await db.getFirstAsync<{ user_version: number }>('PRAGMA user_version;');
-      expect(versionResult?.user_version).toBe(5);
+      expect(versionResult?.user_version).toBeGreaterThanOrEqual(5);
       expect(versionResult?.user_version).toBe(migrations.length);
     });
 
@@ -103,7 +103,7 @@ describe('Real SQLite Database & Check-in Occurrence Repository (Integration Tes
       await runMigrations(freshDb);
 
       const v5 = await freshDb.getFirstAsync<{ user_version: number }>('PRAGMA user_version;');
-      expect(v5?.user_version).toBe(5);
+      expect(v5?.user_version).toBe(migrations.length);
 
       // Verify pre-existing data remains intact
       const taskAfter = await getTaskById(freshDb, existingTask.id);

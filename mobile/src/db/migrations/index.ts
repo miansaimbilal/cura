@@ -1,5 +1,6 @@
 import { IDatabase } from '../types';
 import { generateUUID } from '../../utils/uuid';
+import { migration0006 } from './0006_widget_actions_and_snapshots';
 
 export interface Migration {
   version: number;
@@ -231,6 +232,7 @@ export const migrations: Migration[] = [
       `);
     },
   },
+  migration0006,
 ];
 
 /**

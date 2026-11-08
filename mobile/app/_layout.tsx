@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import { Linking } from 'react-native';
 import { Stack, useRouter } from 'expo-router';
 import * as Notifications from 'expo-notifications';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
@@ -11,6 +12,8 @@ import { ErrorBoundary } from '../src/components/common/ErrorBoundary';
 import { configureNotificationHandler } from '../src/services/checkinScheduler';
 import { setupReconciliationManager } from '../src/services/reconciliationManager';
 import { handleCheckinNotificationResponse } from '../src/services/notificationResponseHandler';
+import { getDatabase } from '../src/db/client';
+import { handleWidgetDeepLink } from '../src/services/widgets/widgetDeepLink';
 
 configureNotificationHandler();
 
@@ -45,9 +48,33 @@ function RootNavigationLayout() {
       });
     });
 
+    // 4. Widget deep-link handler (cold start + warm start)
+    const processDeepLink = async (url: string | null | undefined) => {
+      if (!url) return;
+      try {
+        if (url.startsWith('cura://widget-action')) {
+          const db = await getDatabase();
+          await handleWidgetDeepLink(db, url);
+        } else if (url.startsWith('cura://tasks')) {
+          router.push('/(tabs)/tasks' as any);
+        } else if (url.startsWith('cura://mood')) {
+          router.push('/(tabs)/mood' as any);
+        }
+      } catch (err) {
+        console.error('[RootNavigationLayout] Error processing deep link:', err);
+      }
+    };
+
+    Linking.getInitialURL().then(processDeepLink);
+
+    const linkingSub = Linking.addEventListener('url', (event) => {
+      processDeepLink(event.url);
+    });
+
     return () => {
       cleanupReconciliation();
       notifSub.remove();
+      linkingSub.remove();
     };
   }, [router, selectConversation]);
 

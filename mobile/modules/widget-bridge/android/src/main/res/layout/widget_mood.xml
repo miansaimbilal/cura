@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/widget_mood_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@drawable/widget_background"
+    android:padding="12dp">
+
+    <!-- Header -->
+    <LinearLayout
+        android:id="@+id/widget_mood_header"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginBottom="6dp">
+
+        <TextView
+            android:id="@+id/tv_mood_title"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Cura Mood"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:textColor="#FFFFFF" />
+
+        <TextView
+            android:id="@+id/tv_mood_logged_time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text=""
+            android:textSize="11sp"
+            android:textColor="#A0A3BD" />
+    </LinearLayout>
+
+    <!-- Latest Mood Display -->
+    <TextView
+        android:id="@+id/tv_latest_mood"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="How are you feeling?"
+        android:textSize="13sp"
+        android:textStyle="bold"
+        android:textColor="#E0E2EE"
+        android:layout_marginBottom="4dp" />
+
+    <!-- Mindful Quote -->
+    <TextView
+        android:id="@+id/tv_mood_quote"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:text="Take a deep breath."
+        android:textSize="11sp"
+        android:textColor="#8588A3"
+        android:maxLines="2"
+        android:ellipsize="end"
+        android:layout_marginBottom="8dp" />
+
+    <!-- Placeholder Message (Overlay if error/unauthenticated) -->
+    <TextView
+        android:id="@+id/tv_mood_placeholder"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:gravity="center"
+        android:text="Open Cura to refresh"
+        android:textSize="13sp"
+        android:textColor="#7A7D96"
+        android:visibility="gone" />
+
+    <!-- Quick Mood Selection Row (5 buttons) -->
+    <LinearLayout
+        android:id="@+id/layout_mood_buttons"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center">
+
+        <TextView
+            android:id="@+id/btn_mood_happy"
+            android:layout_width="0dp"
+            android:layout_height="32dp"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="Happy"
+            android:textSize="10sp"
+            android:textColor="#FFFFFF"
+            android:background="@drawable/widget_button_background"
+            android:layout_marginEnd="3dp" />
+
+        <TextView
+            android:id="@+id/btn_mood_calm"
+            android:layout_width="0dp"
+            android:layout_height="32dp"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="Calm"
+            android:textSize="10sp"
+            android:textColor="#FFFFFF"
+            android:background="@drawable/widget_button_background"
+            android:layout_marginEnd="3dp" />
+
+        <TextView
+            android:id="@+id/btn_mood_sad"
+            android:layout_width="0dp"
+            android:layout_height="32dp"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="Sad"
+            android:textSize="10sp"
+            android:textColor="#FFFFFF"
+            android:background="@drawable/widget_button_background"
+            android:layout_marginEnd="3dp" />
+
+        <TextView
+            android:id="@+id/btn_mood_stressed"
+            android:layout_width="0dp"
+            android:layout_height="32dp"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="Stressed"
+            android:textSize="9sp"
+            android:textColor="#FFFFFF"
+            android:background="@drawable/widget_button_background"
+            android:layout_marginEnd="3dp" />
+
+        <TextView
+            android:id="@+id/btn_mood_tired"
+            android:layout_width="0dp"
+            android:layout_height="32dp"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="Tired"
+            android:textSize="10sp"
+            android:textColor="#FFFFFF"
+            android:background="@drawable/widget_button_background" />
+    </LinearLayout>
+
+</LinearLayout>

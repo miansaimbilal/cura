@@ -8,6 +8,7 @@ import { IDatabase, RunResult } from '../../src/db/types';
  */
 export class NodeSQLiteAdapter implements IDatabase {
   public rawDb: DatabaseSync;
+  private transactionDepth = 0;
 
   constructor(filename: string = ':memory:') {
     this.rawDb = new DatabaseSync(filename);
@@ -39,13 +40,38 @@ export class NodeSQLiteAdapter implements IDatabase {
   }
 
   async withTransactionAsync(task: () => Promise<void>): Promise<void> {
-    this.rawDb.exec('BEGIN TRANSACTION;');
+    const depth = this.transactionDepth;
+    const savepointName = `cura_nested_${depth}`;
+
+    if (depth === 0) {
+      this.rawDb.exec('BEGIN TRANSACTION;');
+    } else {
+      this.rawDb.exec(`SAVEPOINT ${savepointName};`);
+    }
+
+    this.transactionDepth++;
+
     try {
       await task();
-      this.rawDb.exec('COMMIT;');
+      if (depth === 0) {
+        this.rawDb.exec('COMMIT;');
+      } else {
+        this.rawDb.exec(`RELEASE SAVEPOINT ${savepointName};`);
+      }
     } catch (err) {
-      this.rawDb.exec('ROLLBACK;');
+      try {
+        if (depth === 0) {
+          this.rawDb.exec('ROLLBACK;');
+        } else {
+          this.rawDb.exec(`ROLLBACK TO SAVEPOINT ${savepointName};`);
+          this.rawDb.exec(`RELEASE SAVEPOINT ${savepointName};`);
+        }
+      } catch {
+        // preserve original error
+      }
       throw err;
+    } finally {
+      this.transactionDepth--;
     }
   }
 

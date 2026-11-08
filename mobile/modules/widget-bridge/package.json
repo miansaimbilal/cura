@@ -1,0 +1,7 @@
+{
+  "name": "widget-bridge",
+  "version": "1.0.0",
+  "description": "Local Expo module for Cura native widget snapshot publication",
+  "main": "src/index.ts",
+  "types": "src/index.ts"
+}

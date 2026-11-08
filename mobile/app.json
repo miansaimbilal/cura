@@ -9,7 +9,24 @@
     "userInterfaceStyle": "automatic",
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.cura.app"
+      "bundleIdentifier": "com.cura.app",
+      "appGroups": [
+        "group.com.cura.app"
+      ],
+      "entitlements": {
+        "com.apple.security.application-groups": [
+          "group.com.cura.app"
+        ]
+      },
+      "infoPlist": {
+        "CFBundleURLTypes": [
+          {
+            "CFBundleURLSchemes": [
+              "cura"
+            ]
+          }
+        ]
+      }
     },
     "android": {
       "package": "com.cura.app",
@@ -22,6 +39,29 @@
       "predictiveBackGestureEnabled": false,
       "permissions": [
         "android.permission.POST_NOTIFICATIONS"
+      ],
+      "intentFilters": [
+        {
+          "action": "VIEW",
+          "data": [
+            {
+              "scheme": "cura",
+              "host": "widget-action"
+            },
+            {
+              "scheme": "cura",
+              "host": "tasks"
+            },
+            {
+              "scheme": "cura",
+              "host": "mood"
+            }
+          ],
+          "category": [
+            "BROWSABLE",
+            "DEFAULT"
+          ]
+        }
       ]
     },
     "web": {
