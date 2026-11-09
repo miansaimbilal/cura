@@ -188,7 +188,7 @@ export default function AnalyticsScreen() {
                   <Text
                     variant="caption"
                     weight={isSelected ? '700' : '500'}
-                    color={isSelected ? '#FFFFFF' : theme.colors.textMuted}
+                    color={isSelected ? theme.colors.accentForeground : theme.colors.textMuted}
                   >
                     {label}
                   </Text>

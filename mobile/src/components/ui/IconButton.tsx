@@ -88,6 +88,7 @@ export const IconButton = ({
       onPress={handlePress}
       accessibilityRole="button"
       accessibilityLabel={accessibilityLabel}
+      hitSlop={props.hitSlop ?? (size === 'sm' ? { top: 6, bottom: 6, left: 6, right: 6 } : undefined)}
       style={[containerStyle, style]}
       {...props}
     >

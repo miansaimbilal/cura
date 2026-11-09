@@ -1,11 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, TouchableOpacity, ScrollView, TextInput, Alert, Platform } from 'react-native';
+import { View, StyleSheet, ScrollView, TextInput, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { ModalSheet } from '../ui/ModalSheet';
 import { Text } from '../ui/Text';
 import { Card } from '../ui/Card';
 import { Button } from '../ui/Button';
-import { Divider } from '../ui/Divider';
 import { useTheme } from '../../hooks/useTheme';
 import { useAuth } from '../../services/auth';
 import { getDatabase } from '../../db/client';
@@ -57,11 +56,22 @@ export function DataManagementModal({ visible, onClose }: DataManagementModalPro
 
   useEffect(() => {
     if (visible) {
-      loadStats();
-      setVacuumMessage(null);
-      setShowDeleteConfirm(false);
-      setDeleteInputText('');
-      setDeleteError(null);
+      queueMicrotask(() => {
+        setVacuumMessage(null);
+        setShowDeleteConfirm(false);
+        setDeleteInputText('');
+        setDeleteError(null);
+      });
+      let active = true;
+      getDatabase()
+        .then((db) => getDatabaseStorageStats(db, userId))
+        .then((s) => {
+          if (active) setStats(s);
+        })
+        .catch(() => {});
+      return () => {
+        active = false;
+      };
     }
   }, [visible, userId]);
 
@@ -289,7 +299,7 @@ export function DataManagementModal({ visible, onClose }: DataManagementModalPro
               <View style={styles.confirmHeader}>
                 <Ionicons name="warning" size={20} color={theme.colors.error} />
                 <Text variant="bodySmall" weight="700" color={theme.colors.error} style={{ marginLeft: 6 }}>
-                  Type "DELETE" to Confirm Permanent Erasure
+                  Type &quot;DELETE&quot; to Confirm Permanent Erasure
                 </Text>
               </View>
               <Text variant="caption" color={theme.colors.textSecondary} style={{ marginVertical: 6 }}>

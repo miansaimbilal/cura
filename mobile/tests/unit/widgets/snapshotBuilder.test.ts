@@ -111,14 +111,14 @@ describe('Widget Snapshot Builder Unit Tests', () => {
       completedAt: new Date().toISOString(),
     });
 
-    const tLatePending = await createTask(db, {
+    await createTask(db, {
       userId,
       title: 'Late Pending',
       dueDate: today,
       dueTime: '17:00',
     });
 
-    const tEarlyPending = await createTask(db, {
+    await createTask(db, {
       userId,
       title: 'Early Pending',
       dueDate: today,

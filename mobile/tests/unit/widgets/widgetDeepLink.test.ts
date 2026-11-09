@@ -7,8 +7,6 @@ import { getWidgetSnapshotMetadata } from '../../../src/services/widgets/snapsho
 import { WidgetNativePublisher } from '../../../src/services/widgets/publishOrchestrator';
 import {
   handleWidgetDeepLink,
-  parseWidgetDeepLink,
-  transitionAccountEpoch,
   migrateGuestDataToUser,
 } from '../../../src/services/widgets/widgetDeepLink';
 

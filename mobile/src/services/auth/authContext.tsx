@@ -118,7 +118,7 @@ export function navigateToGuestHome() {
     if (process.env.NODE_ENV === 'test') {
       return;
     }
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
     const { router } = require('expo-router');
     if (router && typeof router.replace === 'function') {
       router.replace('/(tabs)/home');

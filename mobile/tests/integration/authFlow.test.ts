@@ -11,10 +11,6 @@ import {
   logoutUser,
   getStoredTokens,
   storeTokens,
-  clearStoredTokens,
-  ACCESS_TOKEN_KEY,
-  REFRESH_TOKEN_KEY,
-  USER_INFO_KEY,
 } from '../../src/services/auth/authContext';
 import { migrateGuestDataToUser } from '../../src/services/auth/sessionService';
 

@@ -66,7 +66,9 @@ export const ChatInput: React.FC<ChatInputProps> = ({
             activeOpacity={0.7}
             onPress={onStop}
             style={[styles.actionButton, { backgroundColor: theme.colors.error }]}
+            accessibilityRole="button"
             accessibilityLabel="Stop response generation"
+            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
           >
             <Ionicons name="stop" size={16} color="#FFFFFF" />
           </TouchableOpacity>
@@ -82,7 +84,9 @@ export const ChatInput: React.FC<ChatInputProps> = ({
                 opacity: canSend ? 1 : 0.4,
               },
             ]}
+            accessibilityRole="button"
             accessibilityLabel="Send message"
+            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
           >
             {disabled ? (
               <ActivityIndicator size="small" color={theme.colors.textMuted} />
@@ -90,7 +94,7 @@ export const ChatInput: React.FC<ChatInputProps> = ({
               <Ionicons
                 name="arrow-up"
                 size={18}
-                color={canSend ? '#FFFFFF' : theme.colors.textMuted}
+                color={canSend ? theme.colors.accentForeground : theme.colors.textMuted}
               />
             )}
           </TouchableOpacity>

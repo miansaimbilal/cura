@@ -49,7 +49,12 @@ export function MoodDistributionDonut({
 
   if (total === 0 || items.length === 0) {
     return (
-      <View style={styles.emptyContainer}>
+      <View
+        accessible={true}
+        accessibilityRole="summary"
+        accessibilityLabel="Mood distribution: No moods recorded in this period"
+        style={styles.emptyContainer}
+      >
         <View style={[styles.donutWrapper, { width: size, height: size }]}>
           <Svg width={size} height={size}>
             <Circle
@@ -77,8 +82,15 @@ export function MoodDistributionDonut({
     );
   }
 
+  const a11ySummary = `Mood distribution: ${total} total logs. ${items.map((i) => `${i.label}: ${i.percentage}%`).join(', ')}`;
+
   return (
-    <View style={styles.container}>
+    <View
+      accessible={true}
+      accessibilityRole="summary"
+      accessibilityLabel={a11ySummary}
+      style={styles.container}
+    >
       <View style={[styles.donutWrapper, { width: size, height: size }]}>
         <Svg width={size} height={size}>
           <G transform={`rotate(-90 ${size / 2} ${size / 2})`}>

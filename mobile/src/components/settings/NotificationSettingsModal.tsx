@@ -25,22 +25,22 @@ export function NotificationSettingsModal({ visible, onClose }: NotificationSett
   const { theme } = useTheme();
   const [prefs, setPrefs] = useState<NotificationPreferences>(DEFAULT_NOTIFICATION_PREFERENCES);
   const [hasPermission, setHasPermission] = useState<boolean>(true);
-  const [timeZone, setTimeZone] = useState<string>('Local');
+  const [timeZone] = useState<string>(() => {
+    try {
+      return Intl.DateTimeFormat().resolvedOptions().timeZone || 'Local';
+    } catch {
+      return 'Local';
+    }
+  });
 
   useEffect(() => {
     if (visible) {
       getNotificationPreferences().then(setPrefs);
-      try {
-        const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
-        setTimeZone(tz || 'Local');
-      } catch {
-        setTimeZone('Local');
-      }
 
       // Check system notification permission
       Notifications.getPermissionsAsync()
         .then((status) => {
-          setHasPermission(status.granted || status.ios?.status === Notifications.IosAuthorizationStatus.AUTHORIZED);
+          setHasPermission(status.granted || (status.ios?.status ?? 0) === 2);
         })
         .catch(() => setHasPermission(true));
     }

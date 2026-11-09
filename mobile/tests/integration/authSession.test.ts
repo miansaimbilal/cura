@@ -13,7 +13,6 @@ import {
   ACCESS_TOKEN_KEY,
   REFRESH_TOKEN_KEY,
   USER_INFO_KEY,
-  decodeJwtExp,
   isTokenExpired,
 } from '../../src/services/auth/authContext';
 import * as SecureStore from 'expo-secure-store';

@@ -1,4 +1,4 @@
-import { Share, Platform } from 'react-native';
+import { Share } from 'react-native';
 import { IDatabase } from '../db/types';
 import { clearStoredTokens } from './auth/authContext';
 import { transitionAccountEpoch } from './auth/sessionService';

@@ -4,7 +4,6 @@ import { Ionicons } from '@expo/vector-icons';
 import { ModalSheet } from '../ui/ModalSheet';
 import { Text } from '../ui/Text';
 import { Card } from '../ui/Card';
-import { Divider } from '../ui/Divider';
 import { useTheme } from '../../hooks/useTheme';
 
 export interface PrivacyPolicyModalProps {
@@ -43,7 +42,7 @@ export function PrivacyPolicyModal({ visible, onClose }: PrivacyPolicyModalProps
         </Text>
         <Card variant="surface" style={styles.card}>
           <Text variant="bodySmall" color={theme.colors.textSecondary} style={{ lineHeight: 20 }}>
-            Stored exclusively in your device's private SQLite storage:{'\n'}
+            Stored exclusively in your device&apos;s private SQLite storage:{'\n'}
             • <Text variant="bodySmall" weight="600">Tasks & Checklists:</Text> Titles, descriptions, due dates, and completion status.{'\n'}
             • <Text variant="bodySmall" weight="600">Mood Tracking:</Text> Categorical mood entries, timestamps, user notes, and emotional tags.{'\n'}
             • <Text variant="bodySmall" weight="600">Conversations:</Text> Reflection messages and chat history with timestamps.{'\n'}
@@ -59,8 +58,8 @@ export function PrivacyPolicyModal({ visible, onClose }: PrivacyPolicyModalProps
           <Text variant="bodySmall" color={theme.colors.textSecondary} style={{ lineHeight: 20 }}>
             Cura <Text variant="bodySmall" weight="600" color={theme.colors.textPrimary}>NEVER</Text> transmits your entire database. When you send a message or request a reflection, only a strictly bounded context package is sent:{'\n'}
             • The message you just typed.{'\n'}
-            • The active chat thread's recent turns.{'\n'}
-            • Today's task list (so the AI can provide relevant support).{'\n'}
+            • The active chat thread&apos;s recent turns.{'\n'}
+            • Today&apos;s task list (so the AI can provide relevant support).{'\n'}
             • Mood tags from the last 3 days (to understand your recent state of mind).{'\n'}
             {'\n'}
             Historical conversations from past days and unassociated records are omitted.
@@ -75,7 +74,7 @@ export function PrivacyPolicyModal({ visible, onClose }: PrivacyPolicyModalProps
           <Text variant="bodySmall" color={theme.colors.textSecondary} style={{ lineHeight: 20 }}>
             • <Text variant="bodySmall" weight="600">Interactive Chat:</Text> Sent only to your selected provider (e.g. Google Gemini or Groq). It is never routed to another provider mid-chat.{'\n'}
             • <Text variant="bodySmall" weight="600">Background Failover:</Text> If a provider times out during background summary generation, the system tries configured providers in priority order.{'\n'}
-            • <Text variant="bodySmall" weight="600">Third-Party Logs Notice:</Text> Requests sent to third-party AI APIs are processed under the respective provider's developer terms. While commercial API tiers contractually exclude data from training, Cura cannot verify deletion from third-party server logs and does not make unverified claims of third-party erasure.
+            • <Text variant="bodySmall" weight="600">Third-Party Logs Notice:</Text> Requests sent to third-party AI APIs are processed under the respective provider&apos;s developer terms. While commercial API tiers contractually exclude data from training, Cura cannot verify deletion from third-party server logs and does not make unverified claims of third-party erasure.
           </Text>
         </Card>
 

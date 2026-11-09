@@ -1,18 +1,16 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { NodeSQLiteAdapter } from '../helpers/sqliteAdapter';
 import { runMigrations } from '../../src/db/migrations';
-import { createTask, toggleTaskComplete, softDeleteTask } from '../../src/db/taskRepository';
+import { createTask } from '../../src/db/taskRepository';
 import { createMoodEntry } from '../../src/db/moodRepository';
 import { createConversation, createMessage } from '../../src/db/chatRepository';
 import { getOrCreateCheckinOccurrence } from '../../src/db/checkinRepository';
 import {
   getNotificationPreferences,
-  saveNotificationPreferences,
   updateNotificationCategory,
   getCheckinPreferences,
   saveCheckinPreferences,
   isTimeInQuietHours,
-  NOTIFICATION_PREFERENCES_KEY,
 } from '../../src/services/notificationPreferences';
 import {
   scheduleTaskReminder,

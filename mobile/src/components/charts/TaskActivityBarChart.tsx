@@ -20,7 +20,12 @@ export function TaskActivityBarChart({
 
   if (data.length === 0) {
     return (
-      <View style={[styles.emptyContainer, { height }]}>
+      <View
+        accessible={true}
+        accessibilityRole="summary"
+        accessibilityLabel="Task activity bar chart: No activity records for this period"
+        style={[styles.emptyContainer, { height }]}
+      >
         <Text variant="caption" color={theme.colors.textMuted}>
           No activity records for this period
         </Text>
@@ -40,8 +45,15 @@ export function TaskActivityBarChart({
   const contentWidth = numBars * barWidth + (numBars - 1) * barGap;
   const startX = Math.max((chartWidth - contentWidth) / 2, 0);
 
+  const a11ySummary = `Task activity bar chart: ${totalCompletions} total task completions across ${data.length} days`;
+
   return (
-    <View style={styles.container}>
+    <View
+      accessible={true}
+      accessibilityRole="summary"
+      accessibilityLabel={a11ySummary}
+      style={styles.container}
+    >
       <Svg width={chartWidth} height={height}>
         {/* Background baseline */}
         <Line

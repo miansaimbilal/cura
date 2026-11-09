@@ -1,106 +1,203 @@
-# Cura — Personal Companion
+# Cura — AI-Powered Companion App
 
-An AI-powered personal companion application for daily task management, mood tracking, personal reflection, and analytics.
-
----
-
-## Project Status: Phase 7 — Completed with Documented Limitations
-
-- **Phase 1 (Application Foundation & Design System):** Completed & Verified on Android Emulator (Android 15, SDK 58).
-- **Phase 2 (Backend, Database, and Authentication):** Completed & Verified.
-- **Phase 3 (Mobile Task Management & SQLite Persistence):** Completed & Verified.
-- **Phase 4 (Mood Tracking & SQLite Persistence):** Completed & Verified.
-- **Phase 5 (Multi-Provider AI Architecture & Failover):** Completed & Verified.
-- **Phase 6 (AI Chat, Streaming & Persistent Context):** Completed & Verified.
-- **Phase 7 (Check-ins, Inexact Notifications & Daily Summaries):** Phase 7 — Completed with Documented Limitations on Native Android Build (`com.cura.app`, Android 15, SDK 58).
-  - SQLite Migration `0005_checkin_occurrences` with relational conversation links and `ON DELETE CASCADE`.
-  - Local inexact 7-day rolling calendar notifications (Expo Notifications) with quiet hours suppression.
-  - Multi-trigger notification reconciliation lifecycle manager (cold launch, foreground resume, preferences change, permissions change, midnight rollover, timezone change).
-  - Daily summary cohorts calculation with timed tasks partitioned by `due_date`, untimed by local creation date, and throughput via `task_history`.
-  - 100% test pass rate across 122 mobile tests and 158 backend tests; 20/20 Expo Doctor checks passed.
-  - *Documented Limitations:* The live production JavaScript SQLite connection's `PRAGMA foreign_keys` setting has not been independently interrogated at runtime (verified via isolated test database and native CLI); notification handling has repository-level idempotency and tested in-memory duplicate-tap protection, with device-level verification limited by Android's auto-dismissal of shade notifications on tap; cloud synchronization remains incomplete and is not part of Phase 7 completion.
-
+**Cura** is an offline-first, privacy-respecting, AI-powered task management, mood tracking, and personal reflection companion. Built with React Native, Expo SDK 52, Node.js, and local SQLite persistence, Cura pairs structured productivity with emotional awareness while maintaining strict user data sovereignty.
 
 ---
 
-## Documentation Links
+## Features
 
-- **Product Specification:** [SPEC.md](./SPEC.md) — Master product and technical requirements.
-- **Development Progress:** [docs/PROGRESS.md](./docs/PROGRESS.md) — Phase status, completed features, and test records.
-- **Technical Decisions:** [docs/DECISIONS.md](./docs/DECISIONS.md) — Architectural records, trade-offs, and design decisions.
-- **Architecture & System Design:** [docs/notes/architecture_plan.md](./docs/notes/architecture_plan.md) — Mobile structure, backend architecture, and database schema.
-- **SDK & Package Compatibility:** [docs/notes/dependencies_and_compatibility.md](./docs/notes/dependencies_and_compatibility.md) — Verified SDK 58 package versions.
-- **Offline-First & Sync Architecture:** [docs/notes/offline_sync_architecture.md](./docs/notes/offline_sync_architecture.md) — SQLite persistence, sync queue, conflict resolution, and guest migration.
-- **Privacy & Sensitive Data:** [docs/notes/privacy_and_security.md](./docs/notes/privacy_and_security.md) — Data minimization, bounded context, encryption, export, and deletion.
-- **Widgets & Notifications Research:** [docs/notes/widget_and_notification_research.md](./docs/notes/widget_and_notification_research.md) — `react-native-android-widget`, iOS WidgetKit, exact alarms, and Doze mode mitigations.
-- **EAS Update Strategy:** [docs/notes/eas_update_strategy.md](./docs/notes/eas_update_strategy.md) — Over-the-air update boundaries and runtime versioning.
+- **Offline-First Task Management**: Timed and untimed tasks, recurring schedules, reminder alerts, completion history, and deterministic sorting backed by local SQLite.
+- **Categorical Mood Tracking**: 9 distinct emotional states (`happy`, `calm`, `excited`, `okay`, `tired`, `stressed`, `sad`, `anxious`, `angry`), emotion tags, notes, and interactive timeline views.
+- **Deterministic Analytics**: Visual task completion rings, mood distribution donuts, and activity bar charts across Day, Week, and Month periods computed entirely on-device from SQLite.
+- **AI Reflections & Multi-Provider Routing**: Intelligent context-aware reflection chat with multi-provider failover routing (Google Gemini, Groq, OpenRouter, Cloudflare Workers AI, xAI) using strictly bounded context packets (today's tasks + 3 days of moods).
+- **Proactive AI Check-ins**: 7-day rolling calendar notifications for morning check-ins and evening reflections respecting quiet hours and device local timezones.
+- **Native Home-Screen Widgets**: Native Android `RemoteViews` and iOS WidgetKit widgets sharing data via atomic JSON snapshots and App Groups (`group.com.cura.app`), featuring Last-Write-Wins and payload hash verification.
+- **Seamless Guest Exploration & Auth Migration**: Immediate full utility in Guest mode without login; seamless one-tap in-place migration of all guest records to authenticated cloud-synced accounts upon registration.
+- **Privacy Sovereignty & Pakistan Crisis Support**: Full data export (JSON & RFC 4180 CSV), database defragmentation (`VACUUM`), permanent "Delete My Data" erasure, and an integrated country-aware crisis directory featuring verified Pakistan helplines (Rescue 1122, Police 15, Edhi 115, Umang, Rozan) alongside US, UK, and international services.
+
+---
+
+## Tech Stack
+
+| Domain | Technologies |
+| :--- | :--- |
+| **Mobile App** | React Native, Expo SDK 52/58, Expo Router v4 (file-based navigation, 6 tabs), TypeScript |
+| **Mobile Database** | SQLite via `expo-sqlite`, custom transactional migration engine (`0001` through `0006`) |
+| **Widgets** | Native Android Kotlin (`RemoteViews` + `AppWidgetProvider`), iOS Swift (`WidgetKit`), custom `widget-bridge` Expo module |
+| **Backend** | Node.js, Express, TypeScript, PostgreSQL, Drizzle ORM |
+| **AI Routing** | Multi-provider abstraction with automated retry and fallback routing |
+| **Tooling & CI** | Vitest, ESLint, TypeScript Strict, EAS Build, EAS Update |
+
+---
+
+## Project Structure
+
+```
+Cura/
+├── backend/                      # Node.js + TypeScript backend service
+│   ├── src/
+│   │   ├── ai/                   # AI provider routing, prompts, and failover
+│   │   ├── auth/                 # JWT auth, token refresh, and registration
+│   │   ├── db/                   # Drizzle ORM schema and PostgreSQL migrations
+│   │   └── routes/               # REST API route handlers
+│   └── tests/                    # Backend unit & integration test suites
+├── mobile/                       # Expo React Native client
+│   ├── app/                      # Expo Router navigation shells
+│   │   ├── (auth)/               # Login & registration screens
+│   │   ├── (tabs)/               # 6 main tabs: Home, Tasks, Mood, Analytics, Chat, Profile
+│   │   └── _layout.tsx           # Root navigation provider tree
+│   ├── assets/                   # Static icons, splash screens, and adaptive assets
+│   ├── modules/
+│   │   └── widget-bridge/        # Native Kotlin (Android) & Swift (iOS) widget bridge
+│   ├── src/
+│   │   ├── components/           # UI components (tasks, mood, charts, chat, settings, modal sheets)
+│   │   ├── db/                   # SQLite client, migrations, and repositories
+│   │   ├── hooks/                # Custom React hooks (useTheme, useTasks, useMood, useChat)
+│   │   ├── providers/            # Context providers (ThemeProvider, AuthProvider, TaskProvider)
+│   │   ├── services/             # Core services (notifications, widgets, auth, data export, crisis)
+│   │   └── theme/                # Design tokens (darkColors, lightColors, typography, spacing)
+│   └── tests/                    # Mobile unit, integration, and performance benchmark suites
+├── docs/                         # Architecture, decisions, build, and progress documentation
+│   ├── PROGRESS.md               # Phase-by-phase implementation log
+│   ├── DECISIONS.md              # Architectural Decision Records (ADRs)
+│   ├── BUILD.md                  # Native build & app store release instructions
+│   └── OTA.md                    # EAS Update policies and publishing guide
+├── eas.json                      # EAS Build & Update configuration
+└── SPEC.md                       # Master product & technical specification
+```
 
 ---
 
 ## Getting Started
 
 ### Prerequisites
-- Node.js >= 22.13.x (Node 22 / 24 LTS recommended; local environment runs Node.js v24.20.0)
-- PostgreSQL 15+ (for backend persistence)
+- Node.js >= 22 LTS (tested on Node.js v24.20.0)
+- PostgreSQL 15+ (for cloud backend features)
 - npm or npx
+- Android Studio / Android SDK (for native Android builds)
 
-### 1. Mobile Client (`mobile/`)
+### 1. Mobile Setup (`mobile/`)
 ```bash
-# Navigate to the mobile project directory
+# Navigate to mobile directory
 cd mobile
+
+# Install dependencies (if needed)
+npm install
 
 # Start the Expo development server
 npm start
 
-# Run on Android emulator / device
+# Run on Android connected device or emulator
 npm run android
 
-# Run on iOS simulator / device
-npm run ios
-
-# Run TypeScript checks
+# Run typecheck (must be 0 errors)
 npm run typecheck
 
-# Run ESLint
+# Run linter (must be 0 errors, 0 warnings)
 npm run lint
 
-# Run Expo Doctor diagnostics
-npm run doctor
+# Run automated tests
+npm test
 ```
 
-### 2. Backend Server (`backend/`)
+### 2. Backend Setup (`backend/`)
 ```bash
-# Navigate to the backend directory
+# Navigate to backend directory
 cd backend
 
-# Copy environment template
+# Setup environment variables
 cp .env.example .env
 
-# Generate database migrations
-npm run db:generate
-
-# Run database migrations against PostgreSQL
+# Run PostgreSQL migrations
 npm run db:migrate
 
 # Start development server
 npm run dev
 
-# Run automated tests
+# Run backend tests
 npm test
-
-# Run TypeScript check
-npm run typecheck
-
-# Run ESLint
-npm run lint
 ```
 
 ---
 
-## Core Principles
+## Testing & Quality Assurance
 
-- **Phase-Based Development:** Work progresses strictly one phase at a time per `SPEC.md`. Later phases are never pre-emptively implemented.
-- **Guest-First & Offline-First:** Users can immediately create tasks, log moods, view analytics, and set reminders locally without creating an account or needing an internet connection.
-- **Dark Mode by Default:** Designed intentionally with rich dark tones, along with deliberate Light and System appearance modes.
-- **AI Provider Independence:** Interactive chat uses a single user-chosen provider, while background intelligence gracefully fails over across multiple providers.
-- **Privacy & Security First:** Private API credentials reside safely on the backend. AI providers receive strictly bounded context.
+Cura enforces strict quality gates across the entire codebase:
+
+```bash
+# Mobile tests (unit, integration, end-to-end, benchmarks)
+npm test --prefix mobile
+
+# Mobile TypeScript verification
+npm run typecheck --prefix mobile
+
+# Mobile linting
+npm run lint --prefix mobile
+
+# Backend tests
+npm test --prefix backend
+
+# Clean native Android prebuild verification
+cd mobile && npx expo prebuild --clean --platform android --no-install
+```
+
+---
+
+## Building Native Binaries (EAS Build)
+
+Cura uses EAS Build for generating release packages. Read [`docs/BUILD.md`](./docs/BUILD.md) for full instructions.
+
+- **Android Preview APK (for direct sideloading & testing):**
+  ```bash
+  cd mobile
+  eas build --profile preview --platform android
+  ```
+- **Android Production AAB (for Google Play Store):**
+  ```bash
+  cd mobile
+  eas build --profile production --platform android
+  ```
+- **iOS Production IPA (requires macOS & Xcode for WidgetKit target):**
+  ```bash
+  cd mobile
+  eas build --profile production --platform ios
+  ```
+
+---
+
+## Over-The-Air (OTA) Updates (EAS Update)
+
+Cura uses EAS Update with the `fingerprint` runtime version policy to push instant JavaScript and styling fixes directly to devices. Read [`docs/OTA.md`](./docs/OTA.md) for complete details.
+
+- **Publish to Preview:**
+  ```bash
+  cd mobile
+  eas update --channel preview --message "Fix: Update chart contrast"
+  ```
+- **Publish to Production:**
+  ```bash
+  cd mobile
+  eas update --channel production --message "Hotfix: Correct task sorting"
+  ```
+- **Rollback:**
+  ```bash
+  cd mobile
+  eas update:re-publish --group <UPDATE_GROUP_ID> --channel production
+  ```
+
+---
+
+## Known Platform Limitations (SPEC §18)
+
+1. **Android Widget Action Deep Links**:
+   - On Android, tapping a task checkbox or mood button on the home-screen widget opens the app via the registered deep link (`cura://widget-action`). Standard Android `RemoteViews` handles widget intent callbacks by launching the host application intent.
+2. **iOS WidgetKit Extension Target**:
+   - iOS WidgetKit extensions require a dedicated Xcode target (`CuraWidgetsExtension`) embedded in `Cura.app` with App Group entitlement `group.com.cura.app`. This target must be compiled via Xcode on macOS and cannot be built directly on Windows without EAS cloud build.
+3. **Receipts Storage in Processed Actions (Option B)**:
+   - In accordance with SPEC requirements, widget action receipts created while in guest mode permanently retain `user_id = 'guest'`. Attempting to modify historical guest receipt records upon user migration is prohibited to prevent triggering SQLite trigger conflicts (`trg_processed_actions_no_update -> RAISE(ABORT)`).
+
+---
+
+## Master Specification
+
+The single source of truth for all requirements, architectural invariants, and design specifications is [SPEC.md](./SPEC.md).

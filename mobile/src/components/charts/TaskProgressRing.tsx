@@ -31,8 +31,18 @@ export function TaskProgressRing({
   const isCompletedAll = total > 0 && completed === total;
   const strokeColor = isCompletedAll ? theme.colors.success : theme.colors.accent;
 
+  const a11ySummary =
+    total === 0
+      ? 'Task progress: No tasks scheduled'
+      : `Task progress: ${completed} of ${total} tasks completed, ${percentage}%`;
+
   return (
-    <View style={[styles.container, { width: size, height: size }]}>
+    <View
+      accessible={true}
+      accessibilityRole="summary"
+      accessibilityLabel={a11ySummary}
+      style={[styles.container, { width: size, height: size }]}
+    >
       <Svg width={size} height={size}>
         {/* Background Track Circle */}
         <Circle

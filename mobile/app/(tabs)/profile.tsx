@@ -136,6 +136,9 @@ export default function ProfileScreen() {
                 key={opt.id}
                 activeOpacity={0.7}
                 onPress={() => setThemeMode(opt.id)}
+                accessibilityRole="button"
+                accessibilityLabel={`Switch to ${opt.label} theme`}
+                accessibilityState={{ selected: isSelected }}
                 style={[
                   styles.themeOptionPill,
                   {
@@ -173,6 +176,8 @@ export default function ProfileScreen() {
         <TouchableOpacity
           activeOpacity={0.7}
           onPress={() => setShowNotifications(true)}
+          accessibilityRole="button"
+          accessibilityLabel="Notification Preferences"
           style={styles.menuRow}
         >
           <View style={[styles.menuIconPill, { backgroundColor: theme.colors.surfaceSubtle }]}>
@@ -195,6 +200,8 @@ export default function ProfileScreen() {
         <TouchableOpacity
           activeOpacity={0.7}
           onPress={() => setShowAISettings(true)}
+          accessibilityRole="button"
+          accessibilityLabel="AI Provider and Models"
           style={styles.menuRow}
         >
           <View style={[styles.menuIconPill, { backgroundColor: theme.colors.surfaceSubtle }]}>
@@ -217,6 +224,8 @@ export default function ProfileScreen() {
         <TouchableOpacity
           activeOpacity={0.7}
           onPress={() => setShowCrisisSupport(true)}
+          accessibilityRole="button"
+          accessibilityLabel="Support and Crisis Helplines"
           style={styles.menuRow}
         >
           <View style={[styles.menuIconPill, { backgroundColor: theme.colors.surfaceSubtle }]}>
@@ -244,6 +253,8 @@ export default function ProfileScreen() {
         <TouchableOpacity
           activeOpacity={0.7}
           onPress={() => setShowPrivacyPolicy(true)}
+          accessibilityRole="button"
+          accessibilityLabel="Privacy and AI Data Explanations"
           style={styles.menuRow}
         >
           <View style={[styles.menuIconPill, { backgroundColor: theme.colors.surfaceSubtle }]}>
@@ -266,6 +277,8 @@ export default function ProfileScreen() {
         <TouchableOpacity
           activeOpacity={0.7}
           onPress={() => setShowDataManagement(true)}
+          accessibilityRole="button"
+          accessibilityLabel="Data Portability and Storage"
           style={styles.menuRow}
         >
           <View style={[styles.menuIconPill, { backgroundColor: theme.colors.surfaceSubtle }]}>

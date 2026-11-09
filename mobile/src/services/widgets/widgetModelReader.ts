@@ -9,13 +9,13 @@ export interface WidgetViewModel {
     todayTotal: number;
     todayCompleted: number;
     overdueCount: number;
-    items: Array<{
+    items: {
       id: string;
       title: string;
       status: string;
       dueTime: string | null;
       isTimed: boolean;
-    }>;
+    }[];
   };
   mood?: {
     latestMoodType: string | null;

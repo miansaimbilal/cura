@@ -29,7 +29,7 @@ function getNativeModule(): ExpoWidgetBridgeNative | null {
   }
   try {
     // Dynamically require to avoid breaking Node.js test environments
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
     const expoCore = require('expo-modules-core');
     if (expoCore && typeof expoCore.requireNativeModule === 'function') {
       nativeModule = expoCore.requireNativeModule('ExpoWidgetBridge');

@@ -4,13 +4,11 @@ import { Ionicons } from '@expo/vector-icons';
 import { ModalSheet } from '../ui/ModalSheet';
 import { Text } from '../ui/Text';
 import { Card } from '../ui/Card';
-import { Button } from '../ui/Button';
 import { Divider } from '../ui/Divider';
 import { useTheme } from '../../hooks/useTheme';
 import {
   getCrisisDirectory,
   triggerCrisisContact,
-  CRISIS_DIRECTORIES,
   CRISIS_DISCLAIMER_TEXT,
   TRUSTED_PERSON_PROMPT,
   CrisisHelpline,
