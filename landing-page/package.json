@@ -1,0 +1,14 @@
+{
+  "name": "cura-landing-page",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Cura waitlist landing page and admin email dashboard",
+  "scripts": {
+    "start": "node server.mjs",
+    "dev": "node server.mjs"
+  },
+  "engines": {
+    "node": "22.x"
+  }
+}

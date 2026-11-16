@@ -1,0 +1,5 @@
+# Local waitlist database & secrets
+data/
+.env
+.env.local
+.vercel

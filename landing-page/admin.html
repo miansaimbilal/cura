@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cura — Waitlist Admin</title>
+  <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body class="page-canvas theme-obsidian" id="wl-root">
+
+  <!-- TOP NAVBAR -->
+  <header class="site-header">
+    <div class="container header-inner">
+      <a href="./" class="brand-link" aria-label="Back to Cura Landing Page">
+        <div id="nav-logo" class="brand-mark"></div>
+        <div class="brand-wordmark">
+          <span>cura</span><span class="brand-dot" aria-hidden="true"></span>
+        </div>
+        <span class="admin-badge">Admin</span>
+      </a>
+
+      <div class="header-actions">
+        <button
+          type="button"
+          id="btn-theme"
+          class="theme-toggle-btn"
+          aria-label="Switch color theme"
+        >
+          ☀️
+        </button>
+        <a href="./" class="btn-outline btn-sm">← Landing Page</a>
+        <button type="button" id="btn-logout" class="btn-outline btn-sm hidden">Sign Out</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="container admin-main">
+
+    <!-- 1. ADMIN LOGIN GATE -->
+    <section id="admin-login-section" class="admin-login-wrap">
+      <div class="wl-card admin-login-card">
+        <div id="login-logo" class="cta-logo"></div>
+        <h1 class="admin-login-title">Waitlist Admin</h1>
+        <p class="admin-login-sub">
+          Enter your admin password to view and export everyone who joined the Cura waitlist.
+        </p>
+
+        <form id="admin-login-form" class="admin-login-form">
+          <input
+            type="password"
+            id="admin-password"
+            class="email-input"
+            placeholder="Admin password..."
+            required
+            autocomplete="current-password"
+          />
+          <button type="submit" class="btn-primary btn-lg" id="btn-login-submit">
+            Unlock Waitlist →
+          </button>
+          <div id="login-error" class="form-feedback is-error hidden" role="alert"></div>
+        </form>
+      </div>
+    </section>
+
+    <!-- 2. ADMIN DASHBOARD -->
+    <section id="admin-dashboard-section" class="admin-dash hidden">
+
+      <!-- Default Password Warning (only shown if ADMIN_PASSWORD env var is not set) -->
+      <div id="default-pw-banner" class="admin-warning hidden">
+        <span>⚠️ Using default dev password. Set <code>ADMIN_PASSWORD</code> in your hosting environment variables before sharing publicly.</span>
+      </div>
+
+      <!-- Header & Action Buttons -->
+      <div class="admin-top-row">
+        <div>
+          <h1 class="admin-heading">Waitlist Signups</h1>
+          <p class="admin-subheading" id="storage-mode-label">Loading storage status...</p>
+        </div>
+        <div class="admin-actions">
+          <button type="button" id="btn-refresh" class="btn-outline btn-sm">↻ Refresh</button>
+          <button type="button" id="btn-copy-all" class="btn-outline btn-sm">⧉ Copy Emails</button>
+          <button type="button" id="btn-export-csv" class="btn-primary btn-sm">⬇ Export CSV</button>
+        </div>
+      </div>
+
+      <!-- Summary KPI Cards -->
+      <div class="admin-kpi-grid">
+        <div class="wl-card admin-kpi-card">
+          <span class="kpi-label">Total Emails</span>
+          <strong class="kpi-value" id="stat-total">0</strong>
+        </div>
+        <div class="wl-card admin-kpi-card">
+          <span class="kpi-label">Last 24 Hours</span>
+          <strong class="kpi-value teal-text" id="stat-today">0</strong>
+        </div>
+        <div class="wl-card admin-kpi-card">
+          <span class="kpi-label">Top Signup Section</span>
+          <strong class="kpi-value accent-text" id="stat-source">—</strong>
+        </div>
+      </div>
+
+      <!-- Search & Filter Bar -->
+      <div class="wl-card admin-table-card">
+        <div class="admin-toolbar">
+          <input
+            type="search"
+            id="search-input"
+            class="email-input admin-search"
+            placeholder="Search by email address..."
+            aria-label="Search waitlist emails"
+          />
+          <span class="admin-count-pill" id="filtered-count">0 shown</span>
+        </div>
+
+        <div id="admin-status-toast" class="form-feedback hidden" role="status"></div>
+
+        <!-- Table -->
+        <div class="admin-table-scroll">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Email Address</th>
+                <th>Section</th>
+                <th>Signed Up</th>
+                <th class="text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="waitlist-tbody">
+              <!-- Populated by admin.js -->
+            </tbody>
+          </table>
+        </div>
+
+        <div id="empty-state" class="admin-empty hidden">
+          No waitlist emails saved yet. Anyone who submits their email on the landing page will appear here.
+        </div>
+      </div>
+
+    </section>
+
+  </main>
+
+  <script src="./admin.js"></script>
+</body>
+</html>
