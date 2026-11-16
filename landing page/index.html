@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cura — Manage Your Routines with Cura</title>
+  <meta
+    name="description"
+    content="Manage your routines with Cura. Make projects simpler. Watch your progress fly. Join the waitlist for early access."
+  />
+  <meta property="og:title" content="Cura — Manage Your Routines with Cura" />
+  <meta
+    property="og:description"
+    content="Tell Cura your routine, a big task, or a book you're studying. It breaks everything into simple steps, marks what you finish, and tracks your mood."
+  />
+  <meta property="og:type" content="website" />
+  <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body class="page-canvas theme-obsidian" id="wl-root">
+
+  <!-- TOP NAVBAR -->
+  <header class="site-header">
+    <div class="container header-inner">
+      <a href="#" class="brand-link" aria-label="Cura Home">
+        <div id="nav-logo" class="brand-mark"></div>
+        <div class="brand-wordmark">
+          <span>cura</span><span class="brand-dot" aria-hidden="true"></span>
+        </div>
+      </a>
+
+      <div class="header-actions">
+        <button
+          type="button"
+          id="btn-theme"
+          class="theme-toggle-btn"
+          aria-label="Switch color theme"
+        >
+          ☀️
+        </button>
+        <a href="#join-waitlist" class="btn-primary btn-sm">Join Waitlist</a>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <!-- 1. HERO SECTION -->
+    <section class="container hero-section">
+      <div class="hero-grid">
+
+        <!-- Left: Headline, Short Intro & Waitlist Signup -->
+        <div class="hero-copy">
+          <h1 class="hero-title">
+            Manage your routines with Cura.<br />
+            Make projects simpler.<br />
+            <span class="accent-text">Watch your progress fly.</span>
+          </h1>
+
+          <p class="hero-subtitle">
+            Tell Cura your routine, a big task, or even a book you're studying. It breaks everything into simple steps, marks what you finish, and tracks your mood.
+          </p>
+
+          <form id="form-hero" class="waitlist-form" novalidate>
+            <div class="form-row">
+              <input
+                type="email"
+                required
+                id="email-hero"
+                class="email-input"
+                placeholder="Enter your email for early access..."
+                aria-label="Email address"
+              />
+              <button type="submit" class="btn-primary btn-lg">Save My Spot →</button>
+            </div>
+            <div id="msg-hero" class="form-feedback hidden" role="status" aria-live="polite"></div>
+            <p class="form-note">Free early access. No spam ever.</p>
+          </form>
+        </div>
+
+        <!-- Right: Animated Concept Orbit Diagram -->
+        <div class="hero-visual">
+          <div class="orbit-stage">
+            <svg viewBox="0 0 460 460" class="orbit-svg" aria-hidden="true">
+              <defs>
+                <radialGradient id="aura-hero" cx="50%" cy="50%" r="50%">
+                  <stop offset="0%" stop-color="var(--accent)" stop-opacity="0.30" />
+                  <stop offset="55%" stop-color="var(--teal)" stop-opacity="0.12" />
+                  <stop offset="100%" stop-color="var(--accent)" stop-opacity="0" />
+                </radialGradient>
+              </defs>
+              <circle cx="230" cy="230" r="196" fill="url(#aura-hero)" class="anim-breathe" />
+              <circle cx="230" cy="230" r="185" fill="none" stroke="var(--border)" stroke-width="1.5" stroke-dasharray="6 10" class="anim-spin" />
+              <circle cx="230" cy="230" r="136" fill="none" stroke="var(--accent)" stroke-opacity="0.32" stroke-width="1.5" stroke-dasharray="14 8" class="anim-spin-rev" />
+              <circle cx="230" cy="230" r="88" fill="none" stroke="var(--teal)" stroke-opacity="0.4" stroke-width="1.5" />
+              <path d="M 48 240 Q 140 165, 230 230 T 412 215" fill="none" stroke="var(--teal)" stroke-width="2.5" stroke-linecap="round" opacity="0.6" class="anim-dash" />
+            </svg>
+
+            <div class="orbit-center wl-card anim-breathe">
+              <div id="hero-logo" class="orbit-logo"></div>
+            </div>
+
+            <div class="float-pill pill-top-left wl-card anim-float-a">
+              <span class="pill-icon icon-accent">🔁</span>
+              <div>
+                <div class="pill-title">Manage Routines</div>
+                <div class="pill-sub">Cura tracks it all</div>
+              </div>
+            </div>
+
+            <div class="float-pill pill-top-right wl-card anim-float-b">
+              <span class="pill-icon icon-teal">🧩</span>
+              <div>
+                <div class="pill-title">Big Task → Steps</div>
+                <div class="pill-sub">Split into small tasks</div>
+              </div>
+            </div>
+
+            <div class="float-pill pill-bottom-left wl-card anim-float-b">
+              <span class="pill-icon icon-amber">📖</span>
+              <div>
+                <div class="pill-title">Book → Topics</div>
+                <div class="pill-sub">Chapters mapped out</div>
+              </div>
+            </div>
+
+            <div class="float-pill pill-bottom-right wl-card anim-float-a">
+              <span class="pill-icon icon-teal">🌊</span>
+              <div>
+                <div class="pill-title">Mood &amp; Progress</div>
+                <div class="pill-sub">"What's left today?"</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- 2. FOUR RHYMING FEATURE CARDS + ANIMATED DIAGRAMS -->
+    <section class="container section-bordered">
+      <div class="section-header-center">
+        <span class="eyebrow eyebrow-teal">ZERO MANUAL WORK</span>
+        <h2 class="section-title">Manage your routines with Cura.</h2>
+        <p class="section-subtitle">Just talk naturally—Cura builds your plan, breaks it down, and tracks every step.</p>
+      </div>
+
+      <div class="cards-grid-2">
+        <!-- Card 1: Routines -->
+        <article class="wl-card feature-card">
+          <div class="wl-soft diagram-box">
+            <div class="routine-diagram">
+              <div class="voice-box">
+                <span class="voice-bar bar-accent anim-voice" style="animation-delay:0s;"></span>
+                <span class="voice-bar bar-teal anim-voice" style="animation-delay:0.2s;"></span>
+                <span class="voice-bar bar-accent anim-voice" style="animation-delay:0.4s;"></span>
+                <span class="voice-bar bar-teal anim-voice" style="animation-delay:0.6s;"></span>
+              </div>
+              <span class="diagram-arrow accent-text anim-slide">→</span>
+              <div class="stack-sm">
+                <div class="mini-pill wl-card">
+                  <span class="mini-check check-teal">✓</span>
+                  <span>Morning walk</span>
+                </div>
+                <div class="mini-pill wl-card">
+                  <span class="mini-check check-accent">✓</span>
+                  <span>Evening reading</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div>
+            <h3 class="card-title">Speak your routine. Keep your screen clean.</h3>
+            <p class="card-copy">
+              Tell Cura your plans for the day or month. Say what you finished—it marks them done and tracks your progress automatically.
+            </p>
+          </div>
+        </article>
+
+        <!-- Card 2: Big Task -> Subtasks -->
+        <article class="wl-card feature-card">
+          <div class="wl-soft diagram-box">
+            <div class="branch-diagram">
+              <div class="big-task-node wl-card anim-breathe">
+                <div class="node-emoji">🏔️</div>
+                <div>Big Task</div>
+              </div>
+              <svg viewBox="0 0 36 80" class="branch-lines" aria-hidden="true">
+                <path d="M 0 40 C 18 40, 14 14, 34 14" fill="none" stroke="var(--accent)" stroke-width="2" />
+                <path d="M 0 40 L 34 40" fill="none" stroke="var(--teal)" stroke-width="2" />
+                <path d="M 0 40 C 18 40, 14 66, 34 66" fill="none" stroke="var(--accent)" stroke-width="2" />
+              </svg>
+              <div class="stack-sm">
+                <div class="mini-pill wl-card anim-step" style="animation-delay:0s;">
+                  <span class="teal-text">✓</span><span>Step 1 · Start easy</span>
+                </div>
+                <div class="mini-pill wl-card anim-step" style="animation-delay:0.5s;">
+                  <span class="accent-text">●</span><span>Step 2 · Keep going</span>
+                </div>
+                <div class="mini-pill wl-card anim-step" style="animation-delay:1s;">
+                  <span class="faint-text">○</span><span>Step 3 · Wrap up</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div>
+            <h3 class="card-title">Big task feels tall? Cura splits it small.</h3>
+            <p class="card-copy">
+              Give Cura any huge task for your day. It breaks it into clear, bite-sized steps so you can finish smoothly and track every win.
+            </p>
+          </div>
+        </article>
+
+        <!-- Card 3: Books -> Chapters -> Topics -->
+        <article class="wl-card feature-card">
+          <div class="wl-soft diagram-box">
+            <div class="book-diagram">
+              <div class="book-node wl-card">
+                <div class="node-emoji">📖</div>
+                <div>Your Book</div>
+              </div>
+              <span class="diagram-arrow amber-text anim-slide">→</span>
+              <div class="chapter-node wl-card">
+                <div class="chapter-label">Chapter 1</div>
+                <div class="chapter-sub">3 Topics</div>
+              </div>
+              <span class="diagram-arrow teal-text anim-slide">→</span>
+              <div class="stack-sm">
+                <div class="mini-pill wl-card"><span class="teal-text">✓</span><span>Topic 1</span></div>
+                <div class="mini-pill wl-card"><span class="teal-text">✓</span><span>Topic 2</span></div>
+                <div class="mini-pill wl-card pill-muted"><span>○</span><span>Topic 3</span></div>
+              </div>
+            </div>
+          </div>
+          <div>
+            <h3 class="card-title">Name any book. Track every nook.</h3>
+            <p class="card-copy">
+              Studying or reading? Tell Cura the book—it splits it into chapters and topics. Say "I finished this topic" and see what's left.
+            </p>
+          </div>
+        </article>
+
+        <!-- Card 4: Moods & Progress -->
+        <article class="wl-card feature-card">
+          <div class="wl-soft diagram-box">
+            <svg viewBox="0 0 300 96" class="wave-svg" aria-hidden="true">
+              <circle cx="64" cy="48" r="30" fill="none" stroke="var(--border)" stroke-width="7" />
+              <circle cx="64" cy="48" r="30" fill="none" stroke="var(--accent)" stroke-width="7" stroke-linecap="round" transform="rotate(-90 64 48)" class="anim-ring" />
+              <circle cx="64" cy="48" r="9" fill="var(--teal)" class="anim-breathe" />
+
+              <path d="M 116 64 C 155 64, 170 28, 208 38 C 242 48, 258 24, 286 24" fill="none" stroke="var(--teal)" stroke-width="3" stroke-linecap="round" class="anim-dash" />
+              <circle cx="145" cy="56" r="12" fill="var(--card)" stroke="var(--border)" stroke-width="1.5" />
+              <text x="145" y="61" text-anchor="middle" font-size="12">😊</text>
+              <circle cx="212" cy="39" r="13" fill="var(--card)" stroke="var(--accent)" stroke-width="2" class="anim-float-a" />
+              <text x="212" y="44" text-anchor="middle" font-size="13">🌊</text>
+              <circle cx="272" cy="24" r="13" fill="var(--teal-soft)" stroke="var(--teal)" stroke-width="2" class="anim-float-b" />
+              <text x="272" y="29" text-anchor="middle" font-size="13">✦</text>
+            </svg>
+          </div>
+          <div>
+            <h3 class="card-title">Tap how you feel. Let patterns reveal.</h3>
+            <p class="card-copy">
+              Log your mood in one tap, chat anytime with Cura, and ask Cura how much progress you've made so far.
+            </p>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- 3. THREE BEATS FLOW STRIP -->
+    <section class="container section-bordered">
+      <div class="section-header-center">
+        <span class="eyebrow eyebrow-accent">JUST TALK NATURALLY</span>
+        <h2 class="section-title">Three beats. Everything done.</h2>
+      </div>
+
+      <div class="cards-grid-3">
+        <div class="wl-card beat-card">
+          <div class="beat-label amber-text">01 · Share It</div>
+          <h3 class="beat-title">Routine, big task, or book—just say it.</h3>
+          <p class="beat-copy">Cura breaks big goals into steps and chapters into topics automatically.</p>
+        </div>
+
+        <div class="wl-card beat-card">
+          <div class="beat-label accent-text">02 · Finish It</div>
+          <h3 class="beat-title">Say what you've done. Watch progress run.</h3>
+          <p class="beat-copy">Tell Cura "I finished this topic" and it checks it off right away.</p>
+        </div>
+
+        <div class="wl-card beat-card">
+          <div class="beat-label teal-text">03 · Ask Anything</div>
+          <h3 class="beat-title">Ask what's left today. Rest the calm way.</h3>
+          <p class="beat-copy">Ask Cura how far you've come, what's next, and how your mood feels.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4. FINAL WAITLIST CTA -->
+    <section id="join-waitlist" class="container cta-section">
+      <div class="wl-card cta-box">
+        <div id="footer-logo" class="cta-logo anim-breathe"></div>
+
+        <h2 class="cta-title">
+          Less busy work. More calm.<br />
+          <span class="accent-text">Ready in your palm.</span>
+        </h2>
+
+        <p class="cta-subtitle">
+          Join the waitlist for early access—with Cura routines, project and book breakdowns, and effortless mood tracking.
+        </p>
+
+        <form id="form-footer" class="waitlist-form waitlist-form-center" novalidate>
+          <div class="form-row">
+            <input
+              type="email"
+              required
+              id="email-footer"
+              class="email-input"
+              placeholder="Your email address..."
+              aria-label="Email address"
+            />
+            <button type="submit" class="btn-primary btn-lg">Notify Me at Launch →</button>
+          </div>
+          <div id="msg-footer" class="form-feedback hidden" role="status" aria-live="polite"></div>
+          <p class="form-note">Free early access. No spam ever.</p>
+        </form>
+      </div>
+
+      <footer class="site-footer">
+        <div><strong class="footer-brand">cura.</strong> — Manage your routines with Cura.</div>
+        <div>Private by default • Built for calm daily focus</div>
+      </footer>
+    </section>
+  </main>
+
+  <script src="./app.js"></script>
+</body>
+</html>
